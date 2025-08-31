@@ -11,7 +11,9 @@ hotels = [
     ]
 
 
-@app.get("/hotels")
+@app.get("/hotels",
+         summary="Отели",
+         description="Показывает все отели или по заданным параметрам")
 def get_hotels(
         id: int | None = Query(None, description='Айди'),
         title: str | None = Query(None, description='Название отеля')
@@ -26,14 +28,14 @@ def get_hotels(
     return _hotels
 
 
-@app.delete("/hotels/{hotel_id}")
+@app.delete("/hotels/{hotel_id}", summary="Удаление отеля по id")
 def delete_hotel(hotel_id: int):
     global hotels
     hotels = list(filter(lambda x: x['id'] != hotel_id, hotels))
     return {'status': 'OK'}
 
 
-@app.post("/hotels")
+@app.post("/hotels", summary="Создание отеля")
 def create_hotel(
         title: str = Body(),
         name: str = Body()
@@ -47,7 +49,7 @@ def create_hotel(
     return {'status': 'OK'}
 
 
-@app.put("/hotels/{hotel_id}")
+@app.put("/hotels/{hotel_id}", summary="Изменение всех данных отеля")
 def change_hotel(
         hotel_id: int,
         title: str = Form(...),
@@ -64,7 +66,7 @@ def change_hotel(
     return {'status': 'OK'}
 
 
-@app.patch("/hotels/{hotel_id}")
+@app.patch("/hotels/{hotel_id}", summary="Изменение части информации отеля")
 def change_hotel_partially(
         hotel_id: int,
         title: str | None = Form(None),
