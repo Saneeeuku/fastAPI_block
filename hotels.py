@@ -1,4 +1,5 @@
-from fastapi import Query, Body, Form, APIRouter
+from fastapi import Query, APIRouter
+from schemas.hotels_schemas import Hotel, HotelPATCH
 
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
@@ -34,30 +35,23 @@ def delete_hotel(hotel_id: int):
 
 
 @router.post("/hotels", summary="Создание отеля")
-def create_hotel(
-        title: str = Body(),
-        name: str = Body()
-        ):
+def create_hotel(hotel_data: Hotel):
     global hotels
     hotels.append({
         'id': hotels[-1]['id'] + 1,
-        'title': title,
-        'name': name
+        'title': hotel_data.title,
+        'name': hotel_data.name
         })
     return {'status': 'OK'}
 
 
 @router.put("/{hotel_id}", summary="Изменение всех данных отеля")
-def change_hotel(
-        hotel_id: int,
-        title: str = Form(...),
-        name: str = Form(...)
-        ):
+def change_hotel(hotel_id: int, hotel_data: Hotel):
     global hotels
     for hotel in hotels:
         if hotel['id'] == hotel_id:
-            hotel['title'] = title
-            hotel['name'] = name
+            hotel['title'] = hotel_data.title
+            hotel['name'] = hotel_data.name
             break
     else:
         return {'warning': 'Hotel not found.'}
@@ -65,18 +59,14 @@ def change_hotel(
 
 
 @router.patch("/{hotel_id}", summary="Изменение части информации отеля")
-def change_hotel_partially(
-        hotel_id: int,
-        title: str | None = Form(None),
-        name: str | None = Form(None)
-        ):
+def change_hotel_partially(hotel_id: int, hotel_data: HotelPATCH):
     global hotels
     for hotel in hotels:
         if hotel['id'] == hotel_id:
-            if title:
-                hotel['title'] = title
-            if name:
-                hotel['name'] = name
+            if hotel_data.title:
+                hotel['title'] = hotel_data.title
+            if hotel_data.name:
+                hotel['name'] = hotel_data.name
             break
     else:
         return {'warning': 'Hotel not found.'}

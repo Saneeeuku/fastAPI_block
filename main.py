@@ -1,6 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, Query, Body, Form
-
+from fastapi import FastAPI
 from hotels import router as router_hotels
 
 
