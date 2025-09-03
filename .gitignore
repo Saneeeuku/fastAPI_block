@@ -2,4 +2,4 @@ venv/
 .idea/
 __pycache__/
 .env
-src/migrations/versions/*.py
+# src/migrations/versions/*.py
