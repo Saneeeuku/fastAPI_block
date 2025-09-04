@@ -1,39 +1,26 @@
 from fastapi import Query, Body, APIRouter
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
 from src.models.hotels_model import HotelsOrm
 from src.schemas.hotels_schemas import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
-from src.database import async_new_session
+from src.database import async_new_session, engine
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
-
-hotels = [
-    # {'id': 1, 'title': 'Сочи', 'name': 'sochi'},
-    # {'id': 2, 'title': 'Дубай', 'name': 'dubai'},
-    # {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    # {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    # {"id": 5, "title": "Москва", "name": "moscow"},
-    # {"id": 6, "title": "Казань", "name": "kazan"},
-    # {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
-    ]
 
 
 @router.get("",
             summary="Отели",
             description="Показывает все отели или по заданным параметрам")
-def get_hotels(
+async def get_hotels(
         pagination: PaginationDep,
         id: int | None = Query(None, description='Айди'),
         title: str | None = Query(None, description='Название отеля'),
         ):
-    _hotels = []
-    for hotel in hotels:
-        if id and id != hotel['id']:
-            continue
-        if title and title != hotel['title']:
-            continue
-        _hotels.append(hotel)
+    async with async_new_session() as session:
+        query = select(HotelsOrm)
+        result = await session.execute(query)
+        _hotels = result.scalars().all()
     return _hotels[((pagination.page - 1) * pagination.per_page):pagination.page * pagination.per_page]
 
 
@@ -58,6 +45,7 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
           }})):
     async with async_new_session() as session:
         add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        # print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
         await session.execute(add_hotel_stmt)
         await session.commit()
     return {'status': 'OK'}
