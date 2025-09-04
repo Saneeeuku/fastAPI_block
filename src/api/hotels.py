@@ -1,19 +1,22 @@
 from fastapi import Query, Body, APIRouter
+from sqlalchemy import insert
 
+from src.models.hotels_model import HotelsOrm
 from src.schemas.hotels_schemas import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
+from src.database import async_new_session
 
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 hotels = [
-    {'id': 1, 'title': 'Сочи', 'name': 'sochi'},
-    {'id': 2, 'title': 'Дубай', 'name': 'dubai'},
-    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    {"id": 5, "title": "Москва", "name": "moscow"},
-    {"id": 6, "title": "Казань", "name": "kazan"},
-    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
+    # {'id': 1, 'title': 'Сочи', 'name': 'sochi'},
+    # {'id': 2, 'title': 'Дубай', 'name': 'dubai'},
+    # {"id": 3, "title": "Мальдивы", "name": "maldivi"},
+    # {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
+    # {"id": 5, "title": "Москва", "name": "moscow"},
+    # {"id": 6, "title": "Казань", "name": "kazan"},
+    # {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
     ]
 
 
@@ -43,24 +46,22 @@ def delete_hotel(hotel_id: int):
 
 
 @router.post("/hotels", summary="Создание отеля")
-def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     '1': {'summary': 'Сочи', 'value': {
-        'title': 'Отель у моря 5 звёзд',
-        'name': 'sochi_seaside'
+        'title': 'Чёрная жемчужина',
+        'location': 'sochi'
         }
     },
     '2': {'summary': 'Дубай', 'value': {
-        'title': 'Отель Дубай Бурджхалифа',
-        'name': 'dubai_burjhalifa'
+        'title': 'Буржхалифа',
+        'location': 'dubai'
         }
     }
 })):
-    global hotels
-    hotels.append({
-        'id': hotels[-1]['id'] + 1,
-        'title': hotel_data.title,
-        'name': hotel_data.name
-        })
+    async with async_new_session() as session:
+        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        await session.execute(add_hotel_stmt)
+        await session.commit()
     return {'status': 'OK'}
 
 
