@@ -6,7 +6,6 @@ from src.schemas.hotels_schemas import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
 from src.database import async_new_session
 
-
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 hotels = [
@@ -21,13 +20,13 @@ hotels = [
 
 
 @router.get("",
-         summary="Отели",
-         description="Показывает все отели или по заданным параметрам")
+            summary="Отели",
+            description="Показывает все отели или по заданным параметрам")
 def get_hotels(
-    pagination: PaginationDep,
-    id: int | None = Query(None, description='Айди'),
-    title: str | None = Query(None, description='Название отеля'),
-    ):
+        pagination: PaginationDep,
+        id: int | None = Query(None, description='Айди'),
+        title: str | None = Query(None, description='Название отеля'),
+        ):
     _hotels = []
     for hotel in hotels:
         if id and id != hotel['id']:
@@ -51,13 +50,12 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
         'title': 'Чёрная жемчужина',
         'location': 'sochi'
         }
-    },
+          },
     '2': {'summary': 'Дубай', 'value': {
         'title': 'Буржхалифа',
         'location': 'dubai'
         }
-    }
-})):
+          }})):
     async with async_new_session() as session:
         add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
         await session.execute(add_hotel_stmt)
