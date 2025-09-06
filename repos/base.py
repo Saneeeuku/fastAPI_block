@@ -42,14 +42,15 @@ class BaseRepository:
         res = await self.session.execute(add_stmt)
         return res.scalars().one()
 
-    async def edit(self, data: BaseModel, **filters):
+    async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):
         await self.get_one(**filters)
-        upd_query = update(self.model).filter_by(**filters).values(**data.model_dump())
-        print(upd_query.compile(compile_kwargs={"literal_binds": True}))
-        await self.session.execute(upd_query)
+        upd_stmt = update(self.model).filter_by(**filters).values(
+            **data.model_dump(exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none))
+        # print(upd_stmt.compile(compile_kwargs={"literal_binds": True}))
+        await self.session.execute(upd_stmt)
 
     async def delete(self, **filters):
         await self.get_one(**filters)
-        del_query = sqla_delete(self.model).filter_by(**filters)
-        # print(del_query.compile(compile_kwargs={"literal_binds": True}))
-        await self.session.execute(del_query)
+        del_stmt = sqla_delete(self.model).filter_by(**filters)
+        # print(del_stmt.compile(compile_kwargs={"literal_binds": True}))
+        await self.session.execute(del_stmt)

@@ -3,7 +3,7 @@ from fastapi import Query, Body, APIRouter
 from repos.hotels_repo import HotelsRepository
 from src.schemas.hotels_schemas import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
-from src.database import async_new_session, engine
+from src.database import async_new_session
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
@@ -75,14 +75,7 @@ async def change_hotel(hotel_id: int, hotel_data: Hotel):
 
 @router.patch("/{hotel_id}", summary="Изменение части информации отеля")
 async def change_hotel_partially(hotel_id: int, hotel_data: HotelPATCH):
-    global hotels
-    for hotel in hotels:
-        if hotel['id'] == hotel_id:
-            if hotel_data.title:
-                hotel['title'] = hotel_data.title
-            if hotel_data.name:
-                hotel['name'] = hotel_data.name
-            break
-    else:
-        return {'warning': 'Hotel not found.'}
+    async with async_new_session() as session:
+        await HotelsRepository(session).edit(hotel_data, id=hotel_id, exclude_unset_and_none=True)
+        await session.commit()
     return {'status': 'OK'}
