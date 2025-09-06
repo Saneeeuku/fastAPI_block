@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from repos.base import BaseRepository
 from src.models.hotels_model import HotelsOrm
@@ -24,3 +24,16 @@ class HotelsRepository(BaseRepository):
         )
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def delete_few(self, location, title):
+        del_query = delete(HotelsOrm)
+        if location:
+            del_query = del_query.filter(
+                HotelsOrm.location.icontains(location.strip())
+                )
+        if title:
+            del_query = del_query.filter(
+                HotelsOrm.title.icontains(title.strip())
+                )
+        # print(del_stmt.compile(compile_kwargs={"literal_binds": True}))
+        await self.session.execute(del_query)
