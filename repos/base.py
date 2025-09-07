@@ -6,6 +6,7 @@ from fastapi import HTTPException
 
 class BaseRepository:
     model = None
+    schema: BaseModel = None
 
     def __init__(self, session):
         self.session = session
@@ -13,12 +14,16 @@ class BaseRepository:
     async def get_all(self, *args, **kwargs):
         query = select(self.model)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return [self.schema.model_validate(model, from_attributes=True) for model in result.scalars().all()]
 
     async def get_one_or_none(self, **filters):
         query = select(self.model).filter_by(**filters)
         result = await self.session.execute(query)
-        return result.scalars().one_or_none()
+        result = result.scalars().one_or_none()
+        if result:
+            result = self.schema.model_validate(result, from_attributes=True)
+        return result
+
 
     async def get_one(self, **filters):
         filters = {k: v for k, v in filters.items() if v is not None}
@@ -30,7 +35,7 @@ class BaseRepository:
             raise HTTPException(status_code=404, detail=e.args)
         except MultipleResultsFound as e:
             raise HTTPException(status_code=422, detail=e.args)
-        return result
+        return self.schema.model_validate(result, from_attributes=True)
 
     async def add(self, data: BaseModel):
         add_stmt = (
@@ -38,9 +43,10 @@ class BaseRepository:
             .values(**data.model_dump())
             .returning(self.model)
          )
-        # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
-        res = await self.session.execute(add_stmt)
-        return res.scalars().one()
+        print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
+        result = await self.session.execute(add_stmt)
+        result = result.scalars().one()
+        return self.schema.model_validate(result, from_attributes=True)
 
     async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):
         await self.get_one(**filters)
