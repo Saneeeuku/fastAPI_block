@@ -1,6 +1,6 @@
 from sqlalchemy import select, delete
 
-from repos.base import BaseRepository
+from src.repos.base import BaseRepository
 from src.models.hotels_model import HotelsOrm
 from src.schemas.hotels_schemas import Hotel
 

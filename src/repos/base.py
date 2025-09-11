@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete as sqla_delete, update
-from sqlalchemy.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.exc import NoResultFound, MultipleResultsFound, IntegrityError
 from fastapi import HTTPException
 
 
@@ -44,7 +44,10 @@ class BaseRepository:
             .returning(self.model)
             )
         # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
-        result = await self.session.execute(add_stmt)
+        try:
+            result = await self.session.execute(add_stmt)
+        except IntegrityError as e:
+            raise HTTPException(status_code=422, detail=e.args[0])
         result = result.scalars().one()
         return self.schema.model_validate(result, from_attributes=True)
 
