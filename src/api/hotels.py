@@ -52,21 +52,21 @@ async def delete_few_hotels(
 
 @router.post("/hotel", summary="Создание отеля")
 async def create_hotel(hotel_data: HotelAdd = Body(openapi_examples={
-    '1': {
+        '1': {
         'summary': 'Сочи',
         'value': {
             'title': 'Чёрная жемчужина',
             'location': 'sochi'
             }
-        },
-    '2': {
+            },
+        '2': {
         'summary': 'Дубай',
         'value': {
             'title': 'Буржхалифа',
             'location': 'dubai'
             }
-        }
-     })):
+            }
+        })):
     async with async_new_session() as session:
         _hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()

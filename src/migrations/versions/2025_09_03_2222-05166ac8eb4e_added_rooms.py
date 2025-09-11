@@ -31,9 +31,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["hotel_id"],
             ["hotels.id"],
-        ),
+            ),
         sa.PrimaryKeyConstraint("id"),
-    )
+        )
 
 
 def downgrade() -> None:

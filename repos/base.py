@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete as sqla_delete, update
-from sqlalchemy.exc import ArgumentError, NoResultFound, MultipleResultsFound
+from sqlalchemy.exc import NoResultFound, MultipleResultsFound
 from fastapi import HTTPException
 
 
@@ -42,8 +42,8 @@ class BaseRepository:
             insert(self.model)
             .values(**data.model_dump())
             .returning(self.model)
-         )
-        print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
+            )
+        # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(add_stmt)
         result = result.scalars().one()
         return self.schema.model_validate(result, from_attributes=True)
