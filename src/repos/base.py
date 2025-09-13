@@ -47,7 +47,7 @@ class BaseRepository:
         try:
             result = await self.session.execute(add_stmt)
         except IntegrityError as e:
-            raise HTTPException(status_code=422, detail=e.args[0])
+            raise HTTPException(status_code=422, detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}")
         result = result.scalars().one()
         return self.schema.model_validate(result, from_attributes=True)
 

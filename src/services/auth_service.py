@@ -1,7 +1,9 @@
 from datetime import timedelta, datetime, timezone
 
+from fastapi import HTTPException
 from passlib.context import CryptContext
 import jwt
+from jwt.exceptions import ExpiredSignatureError, DecodeError
 
 from src.config import settings
 
@@ -16,8 +18,17 @@ class AuthService:
         encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
         return encoded_jwt
 
-    def hash_password(self, password):
+    def hash_password(self, password: str):
         return self.pwd_context.hash(password)
 
-    def verify_password(self, plain_password, hashed_password):
+    def verify_password(self, plain_password: str, hashed_password: str):
         return self.pwd_context.verify(plain_password, hashed_password)
+
+    def decode_token(self, token: str) -> dict | None:
+        if token is None:
+            return None
+        try:
+            res = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        except (ExpiredSignatureError, DecodeError) as e:
+            raise HTTPException(status_code=401, detail=f"{e.__class__.__name__}: {e}")
+        return res
