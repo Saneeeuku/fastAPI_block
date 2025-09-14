@@ -9,6 +9,7 @@ class BaseRepository:
     schema: BaseModel = None
 
     def __init__(self, session):
+        """Takes session object"""
         self.session = session
 
     async def get_all(self, *args, **kwargs):
@@ -23,7 +24,6 @@ class BaseRepository:
         if result:
             result = self.schema.model_validate(result, from_attributes=True)
         return result
-
 
     async def get_one(self, **filters):
         filters = {k: v for k, v in filters.items() if v is not None}

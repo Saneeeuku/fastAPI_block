@@ -16,6 +16,12 @@ class TokenDecodeParams(BaseModel):
 	nickname: str
 
 
+class RoomsParams(BaseModel):
+	title: Annotated[str | None, Query(None)]
+	description: Annotated[str | None, Query(None)]
+	price: Annotated[int | None, Query(0, ge=0)]
+
+
 def get_token(request: Request):
 	token = request.cookies.get("access_token", None)
 	if token is None:
@@ -33,3 +39,4 @@ def get_current_user_id(token: str = Depends(get_token)):
 
 PaginationDep = Annotated[PaginationParams, Depends()]
 UserIdDep = Annotated[TokenDecodeParams, Depends(get_current_user_id)]
+RoomsParamsDep = Annotated[RoomsParams, Depends()]
