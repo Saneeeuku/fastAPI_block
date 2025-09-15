@@ -14,3 +14,10 @@ class RoomAdd(RoomRequestAdd):
 
 class Room(RoomRequestAdd):
 	id: int
+
+
+class RoomPATCH(BaseModel):
+	title: str | None = Field(default=None)
+	description: str | None = Field(default=None)
+	price: int | None = Field(default=None)
+	quantity: int | None = Field(default=None)

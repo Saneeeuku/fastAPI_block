@@ -14,12 +14,12 @@ class RoomsRepository(BaseRepository):
         if title:
             query = query.filter(
                 self.model.title.icontains(title.strip())
-            )
+                )
         if description:
             query = query.filter(
                 self.model.description.icontains(description.strip())
-            )
+                )
         if price:
             query = query.where(self.model.price <= price)
         result = await self.session.execute(query)
-        return [RoomRequestAdd.model_validate(model, from_attributes=True) for model in result.scalars().all()]
+        return [self.schema.model_validate(model, from_attributes=True) for model in result.scalars().all()]

@@ -19,7 +19,7 @@ class TokenDecodeParams(BaseModel):
 class RoomsParams(BaseModel):
 	title: Annotated[str | None, Query(None)]
 	description: Annotated[str | None, Query(None)]
-	price: Annotated[int | None, Query(0, ge=0)]
+	price: Annotated[int | None, Query(None, ge=0)]
 
 
 def get_token(request: Request):
