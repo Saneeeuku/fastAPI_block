@@ -63,16 +63,16 @@ async def get_rooms(hotel_id: int, data: RoomsParamsDep):
 
 
 @router.get("/rooms/{room_id}", summary="Получить номер по его id")
-async def get_rooms(hotel_id: int, room_id: int):
+async def get_room(hotel_id: int, room_id: int):
 	async with async_new_session() as session:
-		room = await RoomsRepository(session).get_one(id=room_id)
+		room = await RoomsRepository(session).get_one(id=room_id, hotel_id=hotel_id)
 	return room
 
 
 @router.put("/rooms/{room_id}", summary="Изменение всех данных номера", description="Все поля обязательны")
 async def modify_room(hotel_id: int, room_id: int, data: RoomRequestAdd):
 	async with async_new_session() as session:
-		await RoomsRepository(session).edit(data, id=room_id)
+		await RoomsRepository(session).edit(data, id=room_id, hotel_id=hotel_id)
 		await session.commit()
 	return {"status": "OK"}
 
@@ -80,7 +80,7 @@ async def modify_room(hotel_id: int, room_id: int, data: RoomRequestAdd):
 @router.patch("/rooms/{room_id}", summary="Изменение части данных номера")
 async def modify_room_partially(hotel_id: int, room_id: int, data: RoomPATCH):
 	async with async_new_session() as session:
-		await RoomsRepository(session).edit(data, id=room_id, exclude_unset_and_none=True)
+		await RoomsRepository(session).edit(data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
 		await session.commit()
 	return {"status": "OK"}
 
@@ -88,6 +88,6 @@ async def modify_room_partially(hotel_id: int, room_id: int, data: RoomPATCH):
 @router.delete("/rooms/{room_id}", summary="Удаление номера по id")
 async def delete_room(hotel_id: int, room_id: int):
 	async with async_new_session() as session:
-		await RoomsRepository(session).delete(id=room_id)
+		await RoomsRepository(session).delete(id=room_id, hotel_id=hotel_id)
 		await session.commit()
 	return {"status": "OK"}

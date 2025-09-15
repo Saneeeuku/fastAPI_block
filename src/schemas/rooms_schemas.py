@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 class RoomRequestAdd(BaseModel):
 	title: str
-	description: str | None
+	description: str | None = None
 	price: int
 	quantity: int
 
@@ -17,7 +17,7 @@ class Room(RoomRequestAdd):
 
 
 class RoomPATCH(BaseModel):
-	title: str | None = Field(default=None)
-	description: str | None = Field(default=None)
-	price: int | None = Field(default=None)
-	quantity: int | None = Field(default=None)
+	title: str | None = None
+	description: str | None = None
+	price: int | None = None
+	quantity: int | None = None
