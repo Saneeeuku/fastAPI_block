@@ -26,18 +26,18 @@ async def get_hotel(db: DBDep, hotel_id: int):
 async def create_hotel(
     db: DBDep,
     hotel_data: HotelAdd = Body(openapi_examples={
-        '1': {
-        'summary': 'Сочи',
-        'value': {
-            'title': 'Чёрная жемчужина',
-            'location': 'sochi'
+        "1": {
+        "summary": "Сочи",
+        "value": {
+            "title": "Чёрная жемчужина",
+            "location": "sochi"
             }
             },
-        '2': {
-        'summary': 'Дубай',
-        'value': {
-            'title': 'Буржхалифа',
-            'location': 'dubai'
+        "2": {
+        "summary": "Дубай",
+        "value": {
+            "title": "Буржхалифа",
+            "location": "dubai"
             }
             }
         })

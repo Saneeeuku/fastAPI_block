@@ -16,8 +16,6 @@ class BookingsORM(Base):
 	date_to: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 	price: Mapped[int]
 
-	@hybrid_property
-	def total_cost(self):
-		return self.price * (self.date_to - self.date_from).days
-
-
+	# @hybrid_property
+	# def total_cost(self):
+	# 	return self.price * (self.date_to - self.date_from).days
