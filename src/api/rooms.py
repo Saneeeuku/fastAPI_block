@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Body
 
-from src.database import async_new_session
-from src.repos.rooms_repo import RoomsRepository
-from src.schemas.rooms_schemas import RoomPATCH, RoomRequestAdd, RoomAdd, Room
-from src.api.dependencies import RoomsParamsDep
+from src.schemas.rooms_schemas import RoomPATCH, RoomRequestAdd, RoomAdd
+from src.api.dependencies import RoomsParamsDep, DBDep
 
 router = APIRouter(prefix="/hotels/{hotel_id}", tags=["Номера"])
 
 
 @router.post("", summary="Добавление номера(ов)", description="Добавление номера (одноместный, двухместный и т.д.), c указанием количества")
-async def create_room(hotel_id: int, data: RoomRequestAdd = Body(
-	openapi_examples={
+async def create_room(
+	db: DBDep,
+	hotel_id: int,
+	data: RoomRequestAdd = Body(openapi_examples={
 		"1": {
 			"summary": "Одноместный",
 			"value": {
@@ -47,47 +47,42 @@ async def create_room(hotel_id: int, data: RoomRequestAdd = Body(
 				"quantity": 1,
 				}
 			},
-		})):
+		})
+):
 	new_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
-	async with async_new_session() as session:
-		rooms = await RoomsRepository(session).add(new_data)
-		await session.commit()
+	rooms = await db.rooms.add(new_data)
+	await db.commit()
 	return {"status": "OK", "data": rooms}
 
 
 @router.get("/rooms", summary="Найти подходящие номера", description="По параметрам, частичное сравнение")
-async def get_rooms(hotel_id: int, data: RoomsParamsDep):
-	async with async_new_session() as session:
-		rooms = await RoomsRepository(session).get_all(hotel_id=hotel_id, **data.model_dump())
+async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
+	rooms = await db.rooms.get_all(hotel_id=hotel_id, **data.model_dump())
 	return rooms
 
 
 @router.get("/rooms/{room_id}", summary="Получить номер по его id")
-async def get_room(hotel_id: int, room_id: int):
-	async with async_new_session() as session:
-		room = await RoomsRepository(session).get_one(id=room_id, hotel_id=hotel_id)
+async def get_room(db: DBDep, hotel_id: int, room_id: int):
+	room = await db.rooms.get_one(id=room_id, hotel_id=hotel_id)
 	return room
 
 
 @router.put("/rooms/{room_id}", summary="Изменение всех данных номера", description="Все поля обязательны")
-async def modify_room(hotel_id: int, room_id: int, data: RoomRequestAdd):
-	async with async_new_session() as session:
-		await RoomsRepository(session).edit(data, id=room_id, hotel_id=hotel_id)
-		await session.commit()
+async def modify_room(db: DBDep, hotel_id: int, room_id: int, data: RoomRequestAdd):
+	await db.rooms.edit(data, id=room_id, hotel_id=hotel_id)
+	await db.commit()
 	return {"status": "OK"}
 
 
 @router.patch("/rooms/{room_id}", summary="Изменение части данных номера")
-async def modify_room_partially(hotel_id: int, room_id: int, data: RoomPATCH):
-	async with async_new_session() as session:
-		await RoomsRepository(session).edit(data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
-		await session.commit()
+async def modify_room_partially(db: DBDep, hotel_id: int, room_id: int, data: RoomPATCH):
+	await db.rooms.edit(data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
+	await db.commit()
 	return {"status": "OK"}
 
 
 @router.delete("/rooms/{room_id}", summary="Удаление номера по id")
-async def delete_room(hotel_id: int, room_id: int):
-	async with async_new_session() as session:
-		await RoomsRepository(session).delete(id=room_id, hotel_id=hotel_id)
-		await session.commit()
+async def delete_room(db: DBDep, hotel_id: int, room_id: int):
+	await db.rooms.delete(id=room_id, hotel_id=hotel_id)
+	await db.commit()
 	return {"status": "OK"}
