@@ -31,3 +31,8 @@ async def make_booking(
 @router.get("", summary="Получить все значения таблицы бронирований")
 async def get_bookings(db: DBDep):
 	return await db.bookings.get_all()
+
+
+@router.get("/me", summary="Получить бронирования пользователя")
+async def get_user_bookings(db: DBDep, user_id: UserIdDep):
+	return await db.bookings.get_all_by_id(user_id)
