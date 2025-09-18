@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -14,14 +14,14 @@ class BookingAddRequest(BaseModel):
 class BookingAdd(BaseModel):
 	user_id: int
 	room_id: int
-	date_from: datetime
-	date_to: datetime
+	date_from: date
+	date_to: date
 	price: int
 
 	def __init__(self, **data):
 		try:
-			data["date_from"] = datetime.strptime(data.get("date_from"), "%d/%m/%Y")
-			data["date_to"] = datetime.strptime(data.get("date_to"), "%d/%m/%Y")
+			data["date_from"] = datetime.strptime(data.get("date_from"), "%d/%m/%Y").date()
+			data["date_to"] = datetime.strptime(data.get("date_to"), "%d/%m/%Y").date()
 		except ValidationError:
 			raise HTTPException(status_code=401)
 		super().__init__(**data)
@@ -34,3 +34,4 @@ class BookingAdd(BaseModel):
 
 class Booking(BookingAdd):
 	id: int
+	created_at: datetime
