@@ -12,10 +12,13 @@ class BaseRepository:
         """Takes session object"""
         self.session = session
 
-    async def get_all(self, *args, **kwargs):
-        query = select(self.model)
+    async def get_filtered(self, **filters):
+        query = select(self.model).filter_by(**filters)
         result = await self.session.execute(query)
         return [self.schema.model_validate(model, from_attributes=True) for model in result.scalars().all()]
+
+    async def get_all(self, *args, **kwargs):
+        return await self.get_filtered()
 
     async def get_one_or_none(self, **filters):
         query = select(self.model).filter_by(**filters)
