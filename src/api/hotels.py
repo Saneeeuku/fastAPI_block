@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import Query, Body, APIRouter
 
 from src.schemas.hotels_schemas import HotelAdd, HotelPATCH
@@ -6,7 +8,7 @@ from src.api.dependencies import PaginationDep, DBDep
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-@router.get("", summary="Отели", description="Показывает все отели или по заданным параметрам")
+@router.get("", summary="Отели", description="Показывает по названию и/или локации")
 async def get_hotels(
         db: DBDep,
         pagination: PaginationDep,
@@ -15,6 +17,16 @@ async def get_hotels(
 ):
     return await db.hotels.get_all(
         location=location, title=title, limit=pagination.per_page, offset=(pagination.page - 1) * pagination.per_page)
+
+
+@router.get("/free", summary="Свободные отели", description="Показывает отели со свободными для бронирования номерами")
+async def get_free_hotels(
+        db: DBDep,
+        pagination: PaginationDep,
+        date_from: date = Query(example="2024-08-01", description="Формат даты и разделитель менять нельзя"),
+        date_to: date = Query(example="2024-08-10", description="Формат даты и разделитель менять нельзя")
+):
+    return await db.hotels.get_by_time(date_from=date_from, date_to=date_to)
 
 
 @router.get("/{hotel_id}", summary="Отель", description="Получить отель по id")

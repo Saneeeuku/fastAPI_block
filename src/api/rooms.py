@@ -9,8 +9,7 @@ router = APIRouter(prefix="/hotels/{hotel_id}", tags=["Номера"])
 
 
 @router.post("", summary="Добавление номера(ов)",
-             description="Добавление номера (одноместный, двухместный и т.д.),"
-                         " c указанием количества")
+             description="Добавление номера (одноместный, двухместный и т.д.), c указанием количества")
 async def create_room(db: DBDep, hotel_id: int,
                       data: RoomRequestAdd = Body(openapi_examples={
                           "1": {
@@ -63,16 +62,14 @@ async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
     return rooms
 
 
-@router.get("/rooms/free",
-            summary="Найти подходящие по времени свободные номера")
+@router.get("/rooms/free", summary="Найти подходящие по времени свободные номера")
 async def get_free_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date = Query(example="2024-08-01"),
-    date_to: date = Query(example="2024-08-10")
+    date_from: date = Query(example="2024-08-01", description="Формат даты и разделитель менять нельзя"),
+    date_to: date = Query(example="2024-08-10", description="Формат даты и разделитель менять нельзя")
 ):
-    rooms = await db.rooms.get_by_time(hotel_id=hotel_id, date_from=date_from,
-                                       date_to=date_to)
+    rooms = await db.rooms.get_by_time(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
     return rooms
 
 
@@ -84,8 +81,7 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 
 @router.put("/rooms/{room_id}", summary="Изменение всех данных номера",
             description="Все поля обязательны")
-async def modify_room(db: DBDep, hotel_id: int, room_id: int,
-                      data: RoomRequestAdd):
+async def modify_room(db: DBDep, hotel_id: int, room_id: int, data: RoomRequestAdd):
     await db.rooms.edit(data, id=room_id, hotel_id=hotel_id)
     await db.commit()
     return {"status": "OK"}
@@ -94,8 +90,7 @@ async def modify_room(db: DBDep, hotel_id: int, room_id: int,
 @router.patch("/rooms/{room_id}", summary="Изменение части данных номера")
 async def modify_room_partially(db: DBDep, hotel_id: int, room_id: int,
                                 data: RoomPATCH):
-    await db.rooms.edit(data, id=room_id, hotel_id=hotel_id,
-                        exclude_unset_and_none=True)
+    await db.rooms.edit(data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
     await db.commit()
     return {"status": "OK"}
 

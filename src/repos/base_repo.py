@@ -18,6 +18,7 @@ class BaseRepository:
             .filter(*q_filter)
             .filter_by(**filters)
         )
+        # print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
         return [self.schema.model_validate(model, from_attributes=True) for model in result.scalars().all()]
 
@@ -56,6 +57,7 @@ class BaseRepository:
         except IntegrityError as e:
             raise HTTPException(status_code=422, detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}")
         result = result.scalars().one()
+        print(result)
         return self.schema.model_validate(result, from_attributes=True)
 
     async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):

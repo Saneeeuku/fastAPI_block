@@ -20,10 +20,10 @@ class BookingAdd(BaseModel):
 
 	def __init__(self, **data):
 		try:
-			data["date_from"] = datetime.strptime(data.get("date_from"), "%d/%m/%Y").date()
-			data["date_to"] = datetime.strptime(data.get("date_to"), "%d/%m/%Y").date()
-		except ValidationError:
-			raise HTTPException(status_code=401)
+			data["date_from"] = _convert_str_to_date(data.get("date_from"))
+			data["date_to"] = _convert_str_to_date(data.get("date_to"))
+		except ValidationError as e:
+			raise HTTPException(status_code=422, detail=e.args)
 		super().__init__(**data)
 		self.price = self.total_cost
 
@@ -35,3 +35,14 @@ class BookingAdd(BaseModel):
 class Booking(BookingAdd):
 	id: int
 	created_at: datetime
+
+
+def _convert_str_to_date(str_date: str):
+	if not str_date:
+		raise ValidationError("Неверный формат даты")
+	sep = '-'
+	for el in str_date:
+		if el in ".,/":
+			sep = el
+			break
+	return datetime.strptime(str_date, f"%d{sep}%m{sep}%Y").date()
