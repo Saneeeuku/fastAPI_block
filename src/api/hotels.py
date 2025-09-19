@@ -8,25 +8,24 @@ from src.api.dependencies import PaginationDep, DBDep
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-@router.get("", summary="Отели", description="Показывает по названию и/или локации")
-async def get_hotels(
-        db: DBDep,
-        pagination: PaginationDep,
-        title: str | None = Query(None, description="Название отеля"),
-        location: str | None = Query(None, description="Локация"),
-):
-    return await db.hotels.get_all(
-        location=location, title=title, limit=pagination.per_page, offset=(pagination.page - 1) * pagination.per_page)
+@router.get("", summary="АДМИН_РУЧКА", description="Показывает все отели в таблице")
+async def get_hotels(db: DBDep):
+    return await db.hotels.get_all()
 
 
-@router.get("/free", summary="Свободные отели", description="Показывает отели со свободными для бронирования номерами")
+@router.get("/free", summary="Свободные отели",
+            description="Показывает отели со свободными для бронирования номерами и с дополнительными параметрами")
 async def get_free_hotels(
         db: DBDep,
         pagination: PaginationDep,
         date_from: date = Query(example="2024-08-01", description="Формат даты и разделитель менять нельзя"),
-        date_to: date = Query(example="2024-08-10", description="Формат даты и разделитель менять нельзя")
+        date_to: date = Query(example="2024-08-10", description="Формат даты и разделитель менять нельзя"),
+        title: str | None = Query(None, description="Название отеля"),
+        location: str | None = Query(None, description="Локация"),
 ):
-    return await db.hotels.get_by_time(date_from=date_from, date_to=date_to)
+    return await db.hotels.get_by_time(date_from=date_from, date_to=date_to,
+                                       title=title, location=location,
+                                       limit=pagination.per_page, offset=(pagination.page - 1) * pagination.per_page)
 
 
 @router.get("/{hotel_id}", summary="Отель", description="Получить отель по id")
