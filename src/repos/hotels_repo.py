@@ -11,15 +11,7 @@ from src.schemas.hotels_schemas import Hotel
 
 
 def _get_by_params(location, title):
-    query = select(HotelsOrm.id.label("hotel_id"))
-    if location:
-        query = query.filter(
-            HotelsOrm.location.icontains(location.strip())
-            )
-    if title:
-        query = query.filter(
-            HotelsOrm.title.icontains(title.strip())
-            )
+
     return query.cte(name="hotels_by_params")
 
 
@@ -34,21 +26,22 @@ class HotelsRepository(BaseRepository):
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(free_rooms_ids))
             .group_by(RoomsOrm.hotel_id)
-            .cte(name="free_hotels_ids")
         )
-        hotels_by_params = _get_by_params(location, title)
-        combined = (
-            select(free_hotels_ids.c.hotel_id)
-            .select_from(hotels_by_params)
-            .outerjoin(free_hotels_ids,
-                       cast("ColumnElement[bool]", free_hotels_ids.c.hotel_id == hotels_by_params.c.hotel_id))
+        query = select(HotelsOrm).filter(HotelsOrm.id.in_(free_hotels_ids))
+        if location:
+            query = query.filter(
+                HotelsOrm.location.icontains(location.strip())
+            )
+        if title:
+            query = query.filter(
+                HotelsOrm.title.icontains(title.strip())
+            )
+        query = (
+            query
             .limit(limit)
             .offset(offset)
         )
-        # print(free_hotels_ids.compile(compile_kwargs={"literal_binds": True}))
-        # print(hotels_by_params.compile(compile_kwargs={"literal_binds": True}))
-        # print(combined.compile(compile_kwargs={"literal_binds": True}))
-        return await self.get_filtered(HotelsOrm.id.in_(combined))
+        return await self.get_filtered(query)
 
     async def delete_few(self, location, title):
         del_query = delete(HotelsOrm)
