@@ -10,11 +10,6 @@ from src.repos.utils_repo import get_free_rooms_ids
 from src.schemas.hotels_schemas import Hotel
 
 
-def _get_by_params(location, title):
-
-    return query.cte(name="hotels_by_params")
-
-
 class HotelsRepository(BaseRepository):
     model = HotelsOrm
     schema = Hotel
