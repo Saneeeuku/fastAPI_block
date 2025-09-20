@@ -59,6 +59,13 @@ class BaseRepository:
         result = result.scalars().one()
         return self.schema.model_validate(result, from_attributes=True)
 
+    async def add_bulk(self, data: list[BaseModel]):
+        add_stmt = insert(self.model).values([el.model_dump() for el in data])
+        try:
+            await self.session.execute(add_stmt)
+        except IntegrityError as e:
+            raise HTTPException(status_code=422, detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}")
+
     async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):
         await self.get_one(**filters)
         upd_stmt = update(self.model).filter_by(**filters).values(
@@ -66,8 +73,12 @@ class BaseRepository:
         # print(upd_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(upd_stmt)
 
-    async def delete(self, **filters):
+    async def delete(self, *q_filter, **filters):
         await self.get_one(**filters)
-        del_stmt = sqla_delete(self.model).filter_by(**filters)
+        del_stmt = (
+            sqla_delete(self.model)
+            .filter(*q_filter)
+            .filter_by(**filters)
+        )
         # print(del_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(del_stmt)

@@ -1,5 +1,4 @@
 from datetime import date
-from typing import cast
 
 from sqlalchemy import select, delete
 
