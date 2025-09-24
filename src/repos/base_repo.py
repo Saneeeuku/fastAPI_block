@@ -67,9 +67,10 @@ class BaseRepository:
 
     async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):
         await self.get_one(**filters)
-        upd_stmt = update(self.model).filter_by(**filters).values(
-            **data.model_dump(exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none))
-        await self.session.execute(upd_stmt)
+        new_data = data.model_dump(exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none)
+        if new_data:
+            upd_stmt = update(self.model).filter_by(**filters).values(new_data)
+            await self.session.execute(upd_stmt)
 
     async def delete(self, *q_filter, **filters):
         await self.get_one(**filters)
@@ -78,5 +79,4 @@ class BaseRepository:
             .filter(*q_filter)
             .filter_by(**filters)
         )
-        # print(del_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(del_stmt)

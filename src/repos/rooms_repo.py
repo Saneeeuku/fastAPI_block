@@ -1,10 +1,11 @@
 from datetime import date
 
-from sqlalchemy import func, select
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from src.repos.base_repo import BaseRepository
 from src.models.rooms_model import RoomsOrm
-from src.schemas.rooms_schemas import Room
+from src.schemas.rooms_schemas import Room, RoomWithRels
 from src.repos.utils_repo import get_free_rooms_ids
 
 
@@ -30,4 +31,10 @@ class RoomsRepository(BaseRepository):
 
     async def get_by_time(self, hotel_id: int, date_from: date, date_to: date):
         free_rooms = get_free_rooms_ids(date_from, date_to, hotel_id)
-        return await self.get_filtered(RoomsOrm.id.in_(free_rooms))
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter(RoomsOrm.id.in_(free_rooms))
+        )
+        result = await self.session.execute(query)
+        return [RoomWithRels.model_validate(model, from_attributes=True) for model in result.scalars().all()]

@@ -19,20 +19,22 @@ class RoomFacilitiesRepository(BaseRepository):
     schema = RoomFacility
 
     async def change_facilities(self, room_id: int, facilities_ids: list[int]):
+        if not facilities_ids:
+            await self.session.execute(delete(self.model).filter_by(room_id=room_id))
+            return
+        room_current_fac = (
+            select(RoomsFacilitiesOrm.facility_id)
+            .select_from(RoomsFacilitiesOrm)
+            .filter_by(room_id=room_id)
+            .cte(name="room_current_fac")
+        )
         try:
-            room_current_fac = (
-                select(RoomsFacilitiesOrm.facility_id)
-                .select_from(RoomsFacilitiesOrm)
-                .filter_by(room_id=room_id)
-                .cte(name="room_current_fac")
-            )
-
             new_fac = (
                 select(FacilitiesOrm.id)
                 .filter(or_(FacilitiesOrm.id == el for el in facilities_ids))
                 .cte(name="new_fac")
             )
-        except AssertionError:
+        except AssertionError as e:
             raise HTTPException(status_code=422, detail="Возникла ошибка с изменением данных")
 
         fac_to_delete = (
@@ -61,7 +63,6 @@ class RoomFacilitiesRepository(BaseRepository):
             .where(room_current_fac.c.facility_id.is_(None))
             .cte("fac_to_add")
         )
-
         try:
             add_fac = (
                 insert(RoomsFacilitiesOrm)
@@ -71,4 +72,33 @@ class RoomFacilitiesRepository(BaseRepository):
             # print("*" * 20, end='\n')
             await self.session.execute(add_fac)
         except SQLAlchemyError:
+
             raise Exception("Возникла ошибка с изменением данных")
+
+    # async def set_room_facilities(self, room_id: int, facilities_ids: list[int]) -> None:
+    #  """более эффективный код"""
+    #     get_current_facilities_ids_query = (
+    #         select(self.model.facility_id)
+    #         .filter_by(room_id=room_id)
+    #     )
+    #     res = await self.session.execute(get_current_facilities_ids_query)
+    #     current_facilities_ids: list[int] = res.scalars().all()
+    #     ids_to_delete: list[int] = list(set(current_facilities_ids) - set(facilities_ids))
+    #     ids_to_insert: list[int] = list(set(facilities_ids) - set(current_facilities_ids))
+    #
+    #     if ids_to_delete:
+    #         delete_m2m_facilities_stmt = (
+    #             delete(self.model)
+    #             .filter(
+    #                 self.model.room_id == room_id,
+    #                 self.model.facility_id.in_(ids_to_delete),
+    #             )
+    #         )
+    #         await self.session.execute(delete_m2m_facilities_stmt)
+    #
+    #     if ids_to_insert:
+    #         insert_m2m_facilities_stmt = (
+    #             insert(self.model)
+    #             .values([{"room_id": room_id, "facility_id": f_id} for f_id in ids_to_insert])
+    #         )
+    #         await self.session.execute(insert_m2m_facilities_stmt)
