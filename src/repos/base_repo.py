@@ -45,6 +45,15 @@ class BaseRepository:
             raise HTTPException(status_code=422, detail=e.args)
         return self.schema.model_validate(result, from_attributes=True)
 
+    async def get_one_query_result(self, query_result):
+        try:
+            result = query_result.scalars().one()
+        except NoResultFound as e:
+            raise HTTPException(status_code=404, detail=e.args)
+        except MultipleResultsFound as e:
+            raise HTTPException(status_code=422, detail=e.args)
+        return result
+
     async def add(self, data: BaseModel):
         add_stmt = (
             insert(self.model)
