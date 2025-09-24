@@ -21,8 +21,12 @@ class Room(RoomAdd):
 	id: int
 
 
-class RoomPATCH(BaseModel):
+class RoomPatchOnly(BaseModel):
 	title: str | None = None
 	description: str | None = None
 	price: int | None = None
 	quantity: int | None = None
+
+
+class RoomPatchWithFacilities(RoomPatchOnly):
+	facilities_ids: list[int] | None = None

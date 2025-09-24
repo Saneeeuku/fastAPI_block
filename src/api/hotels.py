@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import Query, Body, APIRouter
 
-from src.schemas.hotels_schemas import HotelAdd, HotelPATCH
+from src.schemas.hotels_schemas import HotelAdd, HotelPatch
 from src.api.dependencies import PaginationDep, DBDep
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
@@ -66,7 +66,7 @@ async def change_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAdd):
 
 
 @router.patch("/{hotel_id}", summary="Изменение части информации отеля")
-async def change_hotel_partially(db: DBDep, hotel_id: int, hotel_data: HotelPATCH):
+async def change_hotel_partially(db: DBDep, hotel_id: int, hotel_data: HotelPatch):
     await db.hotels.edit(hotel_data, id=hotel_id, exclude_unset_and_none=True)
     await db.commit()
     return {"status": "OK"}

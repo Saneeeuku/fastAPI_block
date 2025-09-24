@@ -51,7 +51,6 @@ class BaseRepository:
             .values(**data.model_dump())
             .returning(self.model)
             )
-        # print(add_stmt.compile(compile_kwargs={"literal_binds": True}))
         try:
             result = await self.session.execute(add_stmt)
         except IntegrityError as e:
@@ -70,7 +69,6 @@ class BaseRepository:
         await self.get_one(**filters)
         upd_stmt = update(self.model).filter_by(**filters).values(
             **data.model_dump(exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none))
-        # print(upd_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(upd_stmt)
 
     async def delete(self, *q_filter, **filters):

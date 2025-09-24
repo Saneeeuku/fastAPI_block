@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Body, Query
 
 from src.schemas.facilities_schemas import RoomFacilityRequestAdd
-from src.schemas.rooms_schemas import RoomPATCH, RoomRequestAdd, RoomAdd
+from src.schemas.rooms_schemas import RoomPatchWithFacilities, RoomRequestAdd, RoomAdd, RoomPatchOnly
 from src.api.dependencies import RoomsParamsDep, DBDep
 
 router = APIRouter(prefix="/hotels/{hotel_id}", tags=["Номера"])
@@ -91,16 +91,18 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 async def modify_room(db: DBDep, hotel_id: int, room_id: int, data: RoomRequestAdd):
     room_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
     await db.rooms.edit(room_data, id=room_id, hotel_id=hotel_id)
-    if data.facilities_ids:
-        await db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
+    await db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
     await db.commit()
     return {"status": "OK"}
 
 
 @router.patch("/rooms/{room_id}", summary="Изменение части данных номера")
 async def modify_room_partially(db: DBDep, hotel_id: int, room_id: int,
-                                data: RoomPATCH):
-    await db.rooms.edit(data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
+                                data: RoomPatchWithFacilities):
+    room_only_data = RoomPatchOnly(**data.model_dump())
+    await db.rooms.edit(room_only_data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
+    if data.facilities_ids:
+        await db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
     await db.commit()
     return {"status": "OK"}
 
