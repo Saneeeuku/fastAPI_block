@@ -5,12 +5,13 @@ from sqlalchemy.exc import NoResultFound
 
 from src.repos.base_repo import BaseRepository
 from src.models.users_model import UsersOrm
+from src.repos.mappers.mappers import UsersDataMapper
 from src.schemas.users_schemas import User, UserWithHashedPassword
 
 
 class UsersRepository(BaseRepository):
     model = UsersOrm
-    schema = User
+    mapper = UsersDataMapper
 
     async def get_user_with_hashed_password(self, email: EmailStr):
         query = select(self.model).filter_by(email=email)

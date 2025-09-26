@@ -6,17 +6,17 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.models.facilities_model import FacilitiesOrm, RoomsFacilitiesOrm
 from src.repos.base_repo import BaseRepository
-from src.schemas.facilities_schemas import Facility, RoomFacility
+from src.repos.mappers.mappers import RoomFacilitiesDataMapper, FacilitiesDataMapper
 
 
 class FacilitiesRepository(BaseRepository):
     model = FacilitiesOrm
-    schema = Facility
+    mapper = FacilitiesDataMapper
 
 
 class RoomFacilitiesRepository(BaseRepository):
     model = RoomsFacilitiesOrm
-    schema = RoomFacility
+    mapper = RoomFacilitiesDataMapper
 
     async def change_facilities(self, room_id: int, facilities_ids: list[int]):
         if not facilities_ids:
