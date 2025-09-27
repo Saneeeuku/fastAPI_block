@@ -6,12 +6,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.models.facilities_model import FacilitiesOrm, RoomsFacilitiesOrm
 from src.repos.base_repo import BaseRepository
-from src.repos.mappers.mappers import RoomFacilitiesDataMapper, FacilitiesDataMapper
+from src.repos.mappers.mappers import RoomFacilitiesDataMapper, FacilityDataMapper
 
 
 class FacilitiesRepository(BaseRepository):
     model = FacilitiesOrm
-    mapper = FacilitiesDataMapper
+    mapper = FacilityDataMapper
 
 
 class RoomFacilitiesRepository(BaseRepository):

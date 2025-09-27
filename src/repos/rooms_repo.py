@@ -5,14 +5,14 @@ from sqlalchemy.orm import selectinload
 
 from src.repos.base_repo import BaseRepository
 from src.models.rooms_model import RoomsOrm
-from src.repos.mappers.mappers import RoomsDataMapper
+from src.repos.mappers.mappers import RoomDataMapper
 from src.schemas.rooms_schemas import Room, RoomWithRels
 from src.repos.utils_repo import get_free_rooms_ids
 
 
 class RoomsRepository(BaseRepository):
     model = RoomsOrm
-    mapper = RoomsDataMapper
+    mapper = RoomDataMapper
 
     async def get_all(self, hotel_id: int, title: str, description: str, price: int):
         query = select(self.model).filter_by(hotel_id=hotel_id)
