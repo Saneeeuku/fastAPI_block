@@ -10,7 +10,8 @@ from src.init import redis_manager
 
 
 def my_cache(
-    expire: int = None
+    expire: int = None,
+    include_query: bool = True
 ):
     def my_cache_outer(func: Callable):
         @wraps(func)
@@ -18,6 +19,18 @@ def my_cache(
             sig = inspect.signature(func)
             param_names = list(sig.parameters.keys())[:1]
             cache_key_parts = [func.__name__, f"{args}"]
+            if include_query:
+                request = None
+                for arg in args:
+                    if hasattr(arg, 'query_params'):
+                        request = arg
+                        break
+                if not request and 'request' in kwargs:
+                    request = kwargs['request']
+
+                if request and hasattr(request, 'query_params') and request.query_params:
+                    query_str = "&".join([f"{k}={v}" for k, v in sorted(request.query_params.items())])
+                    cache_key_parts.append(f"query_{hash(query_str)}")
             for k, v in kwargs.items():
                 if k not in param_names:
                     cache_key_parts.append(f"{k}={v}")
@@ -35,7 +48,10 @@ def my_cache(
                     if isinstance(v, BaseModel):
                         res[k] = v.model_dump()
             else:
-                res = [f.model_dump() for f in res]
+                try:
+                    res = res.model_dump()
+                except Exception:
+                    res = [f.model_dump() for f in res]
             try:
                 if expire:
                     await redis_manager.set(cache_key, json.dumps(res), expire=expire)
