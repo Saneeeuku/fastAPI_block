@@ -1,4 +1,5 @@
 import redis.asyncio as redis
+from redis import RedisError
 
 
 class RedisManager:
@@ -11,7 +12,7 @@ class RedisManager:
     async def connect(self):
         try:
             self.redis = await redis.Redis(host=self.host, port=self.port)
-        except:
+        except RedisError:
             print("Не удалось подключиться Redis")
         print("Подключено к Redis")
 
@@ -31,6 +32,6 @@ class RedisManager:
         if self.redis:
             try:
                 await self.redis.close()
-            except:
+            except RedisError:
                 print("Не удалось закрыть подключение Redis")
             print("Подключение Redis закрыто")
