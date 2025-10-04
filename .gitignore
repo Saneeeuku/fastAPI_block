@@ -3,3 +3,6 @@ venv/
 __pycache__/
 .env
 # src/migrations/versions/*.py
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir

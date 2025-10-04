@@ -19,7 +19,7 @@ class HotelsRepository(BaseRepository):
             select(RoomsOrm.hotel_id.label("hotel_id"))
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(free_rooms_ids))
-            .group_by(RoomsOrm.hotel_id)
+            # .group_by(RoomsOrm.hotel_id)
         )
         query = select(HotelsOrm).filter(HotelsOrm.id.in_(free_hotels_ids))
         if location:
@@ -35,7 +35,8 @@ class HotelsRepository(BaseRepository):
             .limit(limit)
             .offset(offset)
         )
-        return await self.get_filtered(query)
+        result = await self.session.execute(query)
+        return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
 
     async def delete_few(self, location, title):
         del_query = delete(HotelsOrm)
