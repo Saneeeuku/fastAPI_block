@@ -2,11 +2,15 @@ Install requirements
 ```bash
 pip install -r requirements.txt
 ```
-Apply migrations if needed
+Apply migrations
 ```bash
 alembic upgrade head
 ```
-Run Dev
+Run with pure python
+```bash
+python -m src.main
+```
+Run Fastapi Dev (running with uvicorn from main with pycharm RUN is kinda lagging on reloads)
 ```bash
 fastapi dev src/main.py
 ```
