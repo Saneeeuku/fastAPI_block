@@ -73,8 +73,10 @@ async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
 async def get_free_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date = Query(example="2024-08-01", description="Формат даты и разделитель менять нельзя"),
-    date_to: date = Query(example="2024-08-10", description="Формат даты и разделитель менять нельзя")
+    date_from: date = Query(example="2024-08-01",
+                            description="Формат даты (год-месяц-число) и разделитель менять нельзя"),
+    date_to: date = Query(example="2024-08-10",
+                          description="Формат даты (год-месяц-число) и разделитель менять нельзя")
 ):
     rooms = await db.rooms.get_by_time(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
     return rooms
@@ -97,8 +99,7 @@ async def modify_room(db: DBDep, hotel_id: int, room_id: int, data: RoomRequestA
 
 
 @router.patch("/rooms/{room_id}", summary="Изменение части данных номера")
-async def modify_room_partially(db: DBDep, hotel_id: int, room_id: int,
-                                data: RoomPatchWithFacilities):
+async def modify_room_partially(db: DBDep, hotel_id: int, room_id: int, data: RoomPatchWithFacilities):
     room_only_data = RoomPatchOnly(**data.model_dump())
     await db.rooms.edit(room_only_data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
     await db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)

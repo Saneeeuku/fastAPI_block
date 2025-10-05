@@ -79,7 +79,6 @@ class BaseRepository:
     async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):
         await self.get_one(**filters)
         new_data = self.mapper.map_to_persistence_entity(data, exclude_unset_and_none)
-        # data.model_dump(exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none)
         if new_data:
             upd_stmt = update(self.model).filter_by(**filters).values(new_data)
             await self.session.execute(upd_stmt)

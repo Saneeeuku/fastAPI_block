@@ -78,8 +78,8 @@ async def change_hotel_partially(db: DBDep, hotel_id: int, hotel_data: HotelPatc
 
 @router.delete("/{hotel_id}", summary="Удаление отеля по id")
 async def delete_hotel(db: DBDep, hotel_id: int):
-    db.hotels.delete(id=hotel_id)
-    db.commit()
+    await db.hotels.delete(id=hotel_id)
+    await db.commit()
     return {"status": "OK"}
 
 

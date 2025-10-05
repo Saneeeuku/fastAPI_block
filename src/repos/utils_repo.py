@@ -19,7 +19,6 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
         .cte(name="booked_rooms_count")
     )
     # print(booked_rooms_count.compile(compile_kwargs={"literal_binds": True}))
-    # print("*"*20, end='\n')
     rooms_left_table = (
         select(
             RoomsOrm.id.label("room_id"),
@@ -30,7 +29,6 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
         .cte(name="rooms_left_table")
     )
     # print(rooms_left.compile(compile_kwargs={"literal_binds": True}))
-    # print("*" * 20, end='\n')
     rooms_ids = (
         select(RoomsOrm.id)
         .select_from(RoomsOrm)
@@ -40,7 +38,6 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
 
     rooms_ids = rooms_ids.subquery(name="rooms_ids")
     # print(rooms_ids.compile(compile_kwargs={"literal_binds": True}))
-    # print("*" * 20, end='\n')
     free_rooms_ids = (
         select(rooms_left_table.c.room_id)
         .select_from(rooms_left_table)
@@ -49,5 +46,4 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
                 )
     )
     # print(free_rooms_ids.compile(compile_kwargs={"literal_binds": True}))
-    # print("*" * 20, end='\n')
     return free_rooms_ids

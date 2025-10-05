@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from src.repos.base_repo import BaseRepository
 from src.models.users_model import UsersOrm
 from src.repos.mappers.mappers import UsersDataMapper
-from src.schemas.users_schemas import User, UserWithHashedPassword
+from src.schemas.users_schemas import UserWithHashedPassword
 
 
 class UsersRepository(BaseRepository):

@@ -34,7 +34,7 @@ class RoomFacilitiesRepository(BaseRepository):
                 .filter(or_(FacilitiesOrm.id == el for el in facilities_ids))
                 .cte(name="new_fac")
             )
-        except AssertionError as e:
+        except AssertionError:
             raise HTTPException(status_code=422, detail="Возникла ошибка с изменением данных")
 
         fac_to_delete = (
@@ -52,7 +52,6 @@ class RoomFacilitiesRepository(BaseRepository):
             )
             await self.session.execute(delete_fac)
             # print(delete_fac.compile(compile_kwargs={"literal_binds": True}))
-            # print("*" * 20, end='\n')
         except SQLAlchemyError:
             raise Exception("Возникла ошибка с изменением данных")
 
@@ -69,10 +68,8 @@ class RoomFacilitiesRepository(BaseRepository):
                 .from_select(["facility_id", "room_id"], select(fac_to_add))
             )
             # print(add_fac.compile(compile_kwargs={"literal_binds": True}))
-            # print("*" * 20, end='\n')
             await self.session.execute(add_fac)
         except SQLAlchemyError:
-
             raise Exception("Возникла ошибка с изменением данных")
 
     # async def set_room_facilities(self, room_id: int, facilities_ids: list[int]) -> None:

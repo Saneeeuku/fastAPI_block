@@ -9,7 +9,7 @@ class HotelAdd(BaseModel):
 class Hotel(HotelAdd):
     id: int
 
-    # model_config = ConfigDict(from_attributes=True) как вариант, вместо прописывания в repos/base_repo.py
+    # model_config = ConfigDict(from_attributes=True) как вариант
 
 
 class HotelPatch(BaseModel):

@@ -19,7 +19,6 @@ class DBManager:
 		self.bookings = BookingsRepository(self.session)
 		self.facilities = FacilitiesRepository(self.session)
 		self.room_facilities = RoomFacilitiesRepository(self.session)
-
 		return self
 
 	async def __aexit__(self, exc_type, exc_val, exc_tb):

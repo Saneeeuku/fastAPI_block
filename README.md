@@ -23,3 +23,6 @@ Celery beat start (on windows)
 celery --app=src.tasks.celery_base:celery_app beat -l info
 ```
 Create src/static/images folder
+```bash
+mkdir src/static/images
+```
