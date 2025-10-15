@@ -19,7 +19,7 @@ class HotelsRepository(BaseRepository):
             select(RoomsOrm.hotel_id.label("hotel_id"))
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(free_rooms_ids))
-            # .group_by(RoomsOrm.hotel_id)
+            .group_by(RoomsOrm.hotel_id)
         )
         query = select(HotelsOrm).filter(HotelsOrm.id.in_(free_hotels_ids))
         if location:
