@@ -2,6 +2,7 @@ venv/
 .idea/
 __pycache__/
 .env
+.env_test
 # src/migrations/versions/*.py
 celerybeat-schedule.bak
 celerybeat-schedule.dat
