@@ -20,8 +20,8 @@ async def get_hotels(db: DBDep):
 async def get_free_hotels(
         db: DBDep,
         pagination: PaginationDep,
-        date_from: date = Query(example="2024-08-01", description="Формат даты и разделитель менять нельзя"),
-        date_to: date = Query(example="2024-08-10", description="Формат даты и разделитель менять нельзя"),
+        date_from: date = Query(examples=["2024-08-01"], description="Формат даты и разделитель менять нельзя"),
+        date_to: date = Query(examples=["2024-08-10"], description="Формат даты и разделитель менять нельзя"),
         title: str | None = Query(None, description="Название отеля"),
         location: str | None = Query(None, description="Локация"),
 ):

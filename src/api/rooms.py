@@ -73,9 +73,9 @@ async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
 async def get_free_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date = Query(example="2024-08-01",
+    date_from: date = Query(examples=["2024-08-01"],
                             description="Формат даты (год-месяц-число) и разделитель менять нельзя"),
-    date_to: date = Query(example="2024-08-10",
+    date_to: date = Query(examples=["2024-08-10"],
                           description="Формат даты (год-месяц-число) и разделитель менять нельзя")
 ):
     rooms = await db.rooms.get_by_time(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
