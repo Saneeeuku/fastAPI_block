@@ -32,7 +32,7 @@ async def create_facility(db: DBDep, data: FacilityRequestAdd = Body(openapi_exa
                           "1": {
                               "summary": "Удобство",
                               "value": {
-                                  "title": "Самое удобное удобство",
+                                  "title": "Удобство",
                               }
                           }})):
     fac = await db.facilities.add(data=data)

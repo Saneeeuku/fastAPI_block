@@ -14,11 +14,11 @@ class HotelsRepository(BaseRepository):
     mapper = HotelDataMapper
 
     async def get_by_time(self, date_from: date, date_to: date, location: str, title: str, limit: int, offset: int):
-        free_rooms_ids = get_free_rooms_ids(date_from=date_from, date_to=date_to)
+        free_rooms_ids_query = get_free_rooms_ids(date_from=date_from, date_to=date_to)
         free_hotels_ids = (
             select(RoomsOrm.hotel_id.label("hotel_id"))
             .select_from(RoomsOrm)
-            .filter(RoomsOrm.id.in_(free_rooms_ids))
+            .filter(RoomsOrm.id.in_(free_rooms_ids_query))
             .group_by(RoomsOrm.hotel_id)
         )
         query = select(HotelsOrm).filter(HotelsOrm.id.in_(free_hotels_ids))

@@ -57,7 +57,8 @@ async def create_room(db: DBDep, hotel_id: int,
     new_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
     rooms = await db.rooms.add(new_data)
     room_facilities = [RoomFacilityRequestAdd(room_id=rooms.id, facility_id=el) for el in data.facilities_ids]
-    await db.room_facilities.add_bulk(room_facilities)
+    if room_facilities:
+        await db.room_facilities.add_bulk(room_facilities)
     await db.commit()
     return {"status": "OK", "data": rooms}
 
@@ -65,7 +66,7 @@ async def create_room(db: DBDep, hotel_id: int,
 @router.get("/rooms", summary="Найти подходящие номера",
             description="По названию, описанию (частичное сравнение), и (или) цене")
 async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
-    rooms = await db.rooms.get_all(hotel_id=hotel_id, **data.model_dump())
+    rooms = await db.rooms.get_all_with_filters(hotel_id=hotel_id, **data.model_dump())
     return rooms
 
 
@@ -73,9 +74,9 @@ async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
 async def get_free_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date = Query(examples=["2024-08-01"],
+    date_from: date = Query(openapi_examples={"1": {"value": "2024-08-01"}},
                             description="Формат даты (год-месяц-число) и разделитель менять нельзя"),
-    date_to: date = Query(examples=["2024-08-10"],
+    date_to: date = Query(openapi_examples={"1": {"value": "2024-08-10"}},
                           description="Формат даты (год-месяц-число) и разделитель менять нельзя")
 ):
     rooms = await db.rooms.get_by_time(date_from=date_from, date_to=date_to, hotel_id=hotel_id)

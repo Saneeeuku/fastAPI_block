@@ -14,7 +14,7 @@ class RoomsRepository(BaseRepository):
     model = RoomsOrm
     mapper = RoomDataMapper
 
-    async def get_all(self, hotel_id: int, title: str, description: str, price: int):
+    async def get_all_with_filters(self, hotel_id: int, title: str, description: str, price: int):
         query = select(self.model).filter_by(hotel_id=hotel_id)
         if title:
             query = query.filter(

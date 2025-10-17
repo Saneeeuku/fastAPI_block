@@ -19,11 +19,12 @@ class BookingAdd(BaseModel):
 	price: int
 
 	def __init__(self, **data):
-		try:
-			data["date_from"] = _convert_str_to_date(data.get("date_from"))
-			data["date_to"] = _convert_str_to_date(data.get("date_to"))
-		except ValidationError as e:
-			raise HTTPException(status_code=422, detail=e.args)
+		if not all([isinstance(el, date) for el in (data["date_from"], data["date_to"])]):
+			try:
+				data["date_from"] = _convert_str_to_date(data.get("date_from"))
+				data["date_to"] = _convert_str_to_date(data.get("date_to"))
+			except ValidationError as e:
+				raise HTTPException(status_code=422, detail=e.args)
 		super().__init__(**data)
 		self.price = self.total_cost
 

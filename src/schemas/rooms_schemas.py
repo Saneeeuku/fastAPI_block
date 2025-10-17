@@ -24,6 +24,7 @@ class Room(RoomAdd):
 
 
 class RoomWithRels(RoomAdd):
+	id: int
 	facilities: list[Facility]
 
 

@@ -24,9 +24,9 @@ async def make_booking(
 		"1": {
 			"summary": "Бронирование",
 			"value": {
-				"room_id": "7",
-				"date_from": "23/04/2025",
-				"date_to": "25/04/2025",
+				"room_id": "1",
+				"date_from": "01/08/2024",
+				"date_to": "10/08/2024",
 			}
 		},
 	})

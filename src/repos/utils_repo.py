@@ -28,7 +28,7 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
         .outerjoin(booked_rooms_count, RoomsOrm.id == booked_rooms_count.c.room_id)
         .cte(name="rooms_left_table")
     )
-    # print(rooms_left.compile(compile_kwargs={"literal_binds": True}))
+    # print(rooms_left_table.compile(compile_kwargs={"literal_binds": True}))
     rooms_ids = (
         select(RoomsOrm.id)
         .select_from(RoomsOrm)

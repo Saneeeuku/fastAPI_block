@@ -5,6 +5,7 @@ from fastapi_cache.decorator import cache
 
 from src.schemas.hotels_schemas import HotelAdd, HotelPatch
 from src.api.dependencies import PaginationDep, DBDep
+
 # from src.utils.self_cache_deco import my_cache
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
@@ -18,10 +19,10 @@ async def get_hotels(db: DBDep):
 @router.get("/free", summary="Свободные отели",
             description="Показывает отели со свободными для бронирования номерами и с дополнительными параметрами")
 async def get_free_hotels(
-        db: DBDep,
-        pagination: PaginationDep,
-        date_from: date = Query(examples=["2024-08-01"], description="Формат даты и разделитель менять нельзя"),
-        date_to: date = Query(examples=["2024-08-10"], description="Формат даты и разделитель менять нельзя"),
+    db: DBDep,
+    pagination: PaginationDep,
+    date_from: date = Query(openapi_examples={"1": {"value": "2024-08-01"}}, description="Формат даты и разделитель менять нельзя"),
+        date_to: date = Query(openapi_examples={"1": {"value": "2024-08-10"}}, description="Формат даты и разделитель менять нельзя"),
         title: str | None = Query(None, description="Название отеля"),
         location: str | None = Query(None, description="Локация"),
 ):
@@ -42,20 +43,20 @@ async def create_hotel(
     db: DBDep,
     hotel_data: HotelAdd = Body(openapi_examples={
         "1": {
-        "summary": "Сочи",
-        "value": {
-            "title": "Чёрная жемчужина",
-            "location": "sochi"
+            "summary": "Сочи",
+            "value": {
+                "title": "Чёрная жемчужина",
+                "location": "sochi"
             }
-            },
+        },
         "2": {
-        "summary": "Дубай",
-        "value": {
-            "title": "Буржхалифа",
-            "location": "dubai"
+            "summary": "Дубай",
+            "value": {
+                "title": "Буржхалифа",
+                "location": "dubai"
             }
-            }
-        })
+        }
+    })
 ):
     _hotel = await db.hotels.add(hotel_data)
     await db.commit()
@@ -85,9 +86,9 @@ async def delete_hotel(db: DBDep, hotel_id: int):
 
 @router.delete("", summary="Удаление нескольких отелей", description="Используется частичное сравнение")
 async def delete_few_hotels(
-        db: DBDep,
-        title: str | None = Query(None, description="Название отеля"),
-        location: str | None = Query(None, description="Локация")
+    db: DBDep,
+    title: str | None = Query(None, description="Название отеля"),
+    location: str | None = Query(None, description="Локация")
 ):
     await db.hotels.delete_few(title=title, location=location)
     await db.commit()
