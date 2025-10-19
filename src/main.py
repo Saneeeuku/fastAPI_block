@@ -4,7 +4,6 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-# from debug_toolbar.middleware import DebugToolbarMiddleware
 
 from src.api.auth import router as router_auth
 from src.api.hotels import router as router_hotels
@@ -24,7 +23,6 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan, debug=False)
-# app.add_middleware(DebugToolbarMiddleware)
 app.include_router(router_auth)
 app.include_router(router_hotels)
 app.include_router(router_rooms)
