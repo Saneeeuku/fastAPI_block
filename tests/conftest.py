@@ -1,8 +1,10 @@
 import json
+from collections.abc import AsyncIterable
 
 import pytest
 from httpx import AsyncClient, ASGITransport
 
+from src.api.dependencies import get_db
 from src.main import app
 from src.config import settings
 from src.database import Base, engine_null_pool, async_new_session_null_pool
@@ -17,10 +19,17 @@ def check_test_mode():
     assert settings.MODE == "TEST"
 
 
-@pytest.fixture()
-async def db(check_test_mode) -> DBManager:
+async def get_db_null_pool() -> AsyncIterable:
     async with DBManager(session_factory=async_new_session_null_pool) as db:
         yield db
+
+
+@pytest.fixture()
+async def db(check_test_mode) -> DBManager:
+    app.dependency_overrides[get_db] = get_db_null_pool
+    async for db in get_db_null_pool():
+        yield db
+
 
 
 @pytest.fixture(scope="session", autouse=True)

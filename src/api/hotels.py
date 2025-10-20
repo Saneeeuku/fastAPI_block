@@ -18,6 +18,7 @@ async def get_hotels(db: DBDep):
 
 @router.get("/free", summary="Свободные отели",
             description="Показывает отели со свободными для бронирования номерами и с дополнительными параметрами")
+# @cache(expire=10)
 async def get_free_hotels(
     db: DBDep,
     pagination: PaginationDep,
