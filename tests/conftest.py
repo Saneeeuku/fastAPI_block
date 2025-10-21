@@ -15,7 +15,6 @@ from src.schemas.rooms_schemas import RoomAdd
 from src.utils.db_manager import DBManager
 
 
-
 @pytest.fixture(scope="session", autouse=True)
 def check_test_mode():
     assert settings.MODE == "TEST"
@@ -34,7 +33,7 @@ async def db(check_test_mode) -> DBManager:
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def setup_db(check_test_mode) -> None:
+async def setup_db(check_test_mode, db) -> None:
     async with engine_null_pool.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -42,10 +41,9 @@ async def setup_db(check_test_mode) -> None:
     hotels_data = receive_data_from_json("mock_hotels.json")
     rooms_data = receive_data_from_json("mock_rooms.json")
 
-    async with DBManager(session_factory=async_new_session_null_pool) as db:
-        await db.hotels.add_bulk([HotelAdd.model_validate(h) for h in hotels_data])
-        await db.rooms.add_bulk([RoomAdd.model_validate(r) for r in rooms_data])
-        await db.commit()
+    await db.hotels.add_bulk([HotelAdd.model_validate(h) for h in hotels_data])
+    await db.rooms.add_bulk([RoomAdd.model_validate(r) for r in rooms_data])
+    await db.commit()
 
 
 @pytest.fixture(scope="session")

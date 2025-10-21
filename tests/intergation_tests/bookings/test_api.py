@@ -2,9 +2,9 @@ import pytest
 from pytest import mark
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 async def clear_bookings_db(db):
-    await db.bookings.delete(room_id=1)
+    await db.bookings.delete()
     await db.commit()
 
 
