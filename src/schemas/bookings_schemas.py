@@ -46,4 +46,14 @@ def _convert_str_to_date(str_date: str):
 		if el in ".,/":
 			sep = el
 			break
-	return datetime.strptime(str_date, f"%d{sep}%m{sep}%Y").date()
+	formats = [f"%Y{sep}%m{sep}%d", f"%d{sep}%m{sep}%Y"]
+	formatted_date = None
+	for f in formats:
+		try:
+			formatted_date = datetime.strptime(str_date, f).date()
+		except ValueError:
+			continue
+	if formatted_date is None:
+		raise ValidationError("Неверный формат даты")
+	else:
+		return formatted_date

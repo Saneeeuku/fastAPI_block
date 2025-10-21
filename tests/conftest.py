@@ -4,7 +4,6 @@ from mocks import *
 
 import pytest
 from httpx import AsyncClient, ASGITransport
-from fastapi import Request
 
 from src.api.dependencies import get_db
 from src.main import app
@@ -68,7 +67,7 @@ async def create_user(setup_db, ac) -> None:
     )
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 async def auth_ac(create_user, ac) -> AsyncClient:
     data = {
         "email": "qwerty@mail.com",
