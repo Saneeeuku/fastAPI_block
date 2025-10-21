@@ -86,7 +86,7 @@ class BaseRepository:
         await self.session.execute(upd_stmt)
 
     async def delete(self, *q_filter, **filters):
-        await self.get_one(**filters)
+        # await self.get_one(**filters)
         del_stmt = (
             sqla_delete(self.model)
             .filter(*q_filter)

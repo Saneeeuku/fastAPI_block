@@ -1,10 +1,10 @@
 import json
 from collections.abc import AsyncIterable
-from mocks import *
 
 import pytest
 from httpx import AsyncClient, ASGITransport
 
+from tests.mocks.mocks import *
 from src.api.dependencies import get_db
 from src.main import app
 from src.config import settings
@@ -13,6 +13,7 @@ from src.models import *
 from src.schemas.hotels_schemas import HotelAdd
 from src.schemas.rooms_schemas import RoomAdd
 from src.utils.db_manager import DBManager
+
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -25,12 +26,11 @@ async def get_db_null_pool() -> AsyncIterable:
         yield db
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 async def db(check_test_mode) -> DBManager:
     app.dependency_overrides[get_db] = get_db_null_pool
     async for db in get_db_null_pool():
         yield db
-
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -84,6 +84,6 @@ def receive_data_from_json(json_filename: str) -> list[dict]:
     """Json files should be placed in tests folder
     :arg str json_filename: name with extension
     """
-    with open(f"./tests/{json_filename}", mode="r", encoding='utf-8') as f:
+    with open(f"./tests/mocks/{json_filename}", mode="r", encoding='utf-8') as f:
         file = json.load(f)
     return file
