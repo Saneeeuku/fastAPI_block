@@ -7,5 +7,4 @@ async def test_get_hotels(ac):
         "/hotels/free",
         params=data
     )
-
     assert response.status_code == 200

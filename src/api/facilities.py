@@ -9,14 +9,14 @@ router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
 
 @router.get("", summary="Получить всю таблицу удобств")
-#@cache(expire=10)
+@cache(expire=10)
 # @my_cache(expire=5)
 async def get_all(db: DBDep):
     return await db.facilities.get_all()
 
 
 @router.post("", summary="Добавить одно из удобств")
-#@cache(expire=10)
+@cache(expire=10)
 # @my_cache(expire=10)
 async def create_facility(db: DBDep, data: FacilityRequestAdd = Body(openapi_examples={
                           "1": {

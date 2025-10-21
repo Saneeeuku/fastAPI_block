@@ -29,7 +29,7 @@ async def register_user(
 
 
 @router.post("/login", summary="Авторизация пользователя")
-async def register_user(
+async def login_user(
     db: DBDep,
     response: Response,
     user_data: UserRequestLogin = Body(openapi_examples={

@@ -1,8 +1,10 @@
 import json
 from collections.abc import AsyncIterable
+from mocks import *
 
 import pytest
 from httpx import AsyncClient, ASGITransport
+from fastapi import Request
 
 from src.api.dependencies import get_db
 from src.main import app
@@ -55,14 +57,28 @@ async def ac(check_test_mode) -> AsyncClient:
 
 @pytest.fixture(scope="session", autouse=True)
 async def create_user(setup_db, ac) -> None:
-    await ac.post(
-        "/auth/registration",
-        json={
+    data = {
             "email": "qwerty@mail.com",
             "password": "strongpassword",
             "nickname": "coolnickname"
         }
+    await ac.post(
+        "/auth/registration",
+        json=data
     )
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def auth_ac(create_user, ac) -> AsyncClient:
+    data = {
+        "email": "qwerty@mail.com",
+        "password": "strongpassword"}
+    response = await ac.post(
+        "/auth/login",
+        json=data
+    )
+    assert response.cookies.get("access_token")
+    yield ac
 
 
 def receive_data_from_json(json_filename: str) -> list[dict]:
