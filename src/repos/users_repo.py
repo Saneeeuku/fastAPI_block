@@ -19,5 +19,5 @@ class UsersRepository(BaseRepository):
         try:
             result = result.scalars().one()
         except NoResultFound as e:
-            raise HTTPException(status_code=404, detail=e.args)
+            raise HTTPException(status_code=404, detail=f"Пользователь не найден. {e.args}")
         return UserWithHashedPassword.model_validate(result, from_attributes=True)
