@@ -102,8 +102,10 @@ async def modify_room(db: DBDep, hotel_id: int, room_id: int, data: RoomRequestA
 @router.patch("/rooms/{room_id}", summary="Изменение части данных номера")
 async def modify_room_partially(db: DBDep, hotel_id: int, room_id: int, data: RoomPatchWithFacilities):
     room_only_data = RoomPatchOnly(**data.model_dump())
-    await db.rooms.edit(room_only_data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
-    await db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
+    if any(v is not None for _, v in room_only_data):
+        await db.rooms.edit(room_only_data, id=room_id, hotel_id=hotel_id, exclude_unset_and_none=True)
+    if data.facilities_ids:
+        await db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
     await db.commit()
     return {"status": "OK"}
 

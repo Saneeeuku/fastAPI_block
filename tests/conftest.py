@@ -4,12 +4,12 @@ from collections.abc import AsyncIterable
 import pytest
 from httpx import AsyncClient, ASGITransport
 
-from tests.mocks.mocks import *
+from tests.mocks import mocks  # noqa: F401
 from src.api.dependencies import get_db
 from src.main import app
 from src.config import settings
 from src.database import Base, engine_null_pool, async_new_session_null_pool
-from src.models import *
+from src.models import *  # noqa: F403
 from src.schemas.hotels_schemas import HotelAdd
 from src.schemas.rooms_schemas import RoomAdd
 from src.utils.db_manager import DBManager

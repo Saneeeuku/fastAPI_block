@@ -2,7 +2,6 @@ from datetime import date
 
 from sqlalchemy import func, select
 
-from src.database import engine
 from src.models.bookings_model import BookingsOrm
 from src.models.rooms_model import RoomsOrm
 
@@ -28,7 +27,6 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
         .outerjoin(booked_rooms_count, RoomsOrm.id == booked_rooms_count.c.room_id)
         .cte(name="rooms_left_table")
     )
-    # print(rooms_left_table.compile(compile_kwargs={"literal_binds": True}))
     rooms_ids = (
         select(RoomsOrm.id)
         .select_from(RoomsOrm)
@@ -37,7 +35,6 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
         rooms_ids = rooms_ids.filter_by(hotel_id=hotel_id)
 
     rooms_ids = rooms_ids.subquery(name="rooms_ids")
-    # print(rooms_ids.compile(compile_kwargs={"literal_binds": True}))
     free_rooms_ids = (
         select(rooms_left_table.c.room_id)
         .select_from(rooms_left_table)
@@ -45,5 +42,4 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
                 rooms_left_table.c.room_id.in_(select(rooms_ids))
                 )
     )
-    # print(free_rooms_ids.compile(compile_kwargs={"literal_binds": True}))
     return free_rooms_ids

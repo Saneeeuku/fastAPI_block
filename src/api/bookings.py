@@ -2,7 +2,6 @@ from fastapi import APIRouter, Body
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.bookings_schemas import BookingAddRequest
-from src.schemas.rooms_schemas import RoomPatchOnly
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 

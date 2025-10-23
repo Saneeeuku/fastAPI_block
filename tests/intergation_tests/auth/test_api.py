@@ -48,8 +48,11 @@ async def test_login_and_me_and_delete(
         assert response.cookies.get("access_token")
 
         resp_me_after_login = await ac.get("/auth/me")
-        assert resp_me_after_login.json().get("id") == user_id
-        assert resp_me_after_login.json().get("email") == email
+        user = resp_me_after_login.json()
+        assert user.get("id") == user_id
+        assert user.get("email") == email
+        assert user.get("nickname")
+        assert "password" not in user and "hashed_password" not in user
 
         resp_logout = await ac.delete("/auth/logout")
         assert resp_logout.json().get("status") == "OK"
