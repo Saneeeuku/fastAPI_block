@@ -30,7 +30,7 @@ app.include_router(router_bookings)
 app.include_router(router_facilities)
 app.include_router(router_images)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run(
         "src.main:app",
         host="127.0.0.1",

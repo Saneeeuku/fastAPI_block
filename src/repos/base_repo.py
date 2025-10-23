@@ -15,11 +15,7 @@ class BaseRepository:
         self.session = session
 
     async def get_filtered(self, *q_filter, **filters):
-        query = (
-            select(self.model)
-            .filter(*q_filter)
-            .filter_by(**filters)
-        )
+        query = select(self.model).filter(*q_filter).filter_by(**filters)
         # print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
@@ -57,15 +53,14 @@ class BaseRepository:
         return result
 
     async def add(self, data: BaseModel):
-        add_stmt = (
-            insert(self.model)
-            .values(**data.model_dump())
-            .returning(self.model)
-            )
+        add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         try:
             result = await self.session.execute(add_stmt)
         except IntegrityError as e:
-            raise HTTPException(status_code=422, detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}")
+            raise HTTPException(
+                status_code=422,
+                detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}",
+            )
         result = result.scalars().one()
         return self.mapper.map_to_domain_entity(result)
 
@@ -74,22 +69,25 @@ class BaseRepository:
         try:
             await self.session.execute(add_stmt)
         except IntegrityError as e:
-            raise HTTPException(status_code=422, detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}")
+            raise HTTPException(
+                status_code=422,
+                detail=f"{e.__class__.__name__}: {e.orig.args[0].split('DETAIL:  ')[1]}",
+            )
 
     async def edit(self, data: BaseModel, exclude_unset_and_none: bool = False, **filters):
         await self.get_one(**filters)
         upd_stmt = (
             update(self.model)
             .filter_by(**filters)
-            .values(**data.model_dump(exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none))
+            .values(
+                **data.model_dump(
+                    exclude_unset=exclude_unset_and_none, exclude_none=exclude_unset_and_none
+                )
+            )
         )
         await self.session.execute(upd_stmt)
 
     async def delete(self, *q_filter, **filters):
         # await self.get_one(**filters)
-        del_stmt = (
-            sqla_delete(self.model)
-            .filter(*q_filter)
-            .filter_by(**filters)
-        )
+        del_stmt = sqla_delete(self.model).filter(*q_filter).filter_by(**filters)
         await self.session.execute(del_stmt)

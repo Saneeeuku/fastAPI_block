@@ -13,7 +13,9 @@ class HotelsRepository(BaseRepository):
     model = HotelsOrm
     mapper = HotelDataMapper
 
-    async def get_by_time(self, date_from: date, date_to: date, location: str, title: str, limit: int, offset: int):
+    async def get_by_time(
+        self, date_from: date, date_to: date, location: str, title: str, limit: int, offset: int
+    ):
         free_rooms_ids_query = get_free_rooms_ids(date_from=date_from, date_to=date_to)
         free_hotels_ids = (
             select(RoomsOrm.hotel_id.label("hotel_id"))
@@ -23,30 +25,18 @@ class HotelsRepository(BaseRepository):
         )
         query = select(HotelsOrm).filter(HotelsOrm.id.in_(free_hotels_ids))
         if location:
-            query = query.filter(
-                HotelsOrm.location.icontains(location.strip())
-            )
+            query = query.filter(HotelsOrm.location.icontains(location.strip()))
         if title:
-            query = query.filter(
-                HotelsOrm.title.icontains(title.strip())
-            )
-        query = (
-            query
-            .limit(limit)
-            .offset(offset)
-        )
+            query = query.filter(HotelsOrm.title.icontains(title.strip()))
+        query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
 
     async def delete_few(self, location, title):
         del_query = delete(HotelsOrm)
         if location:
-            del_query = del_query.filter(
-                HotelsOrm.location.icontains(location.strip())
-                )
+            del_query = del_query.filter(HotelsOrm.location.icontains(location.strip()))
         if title:
-            del_query = del_query.filter(
-                HotelsOrm.title.icontains(title.strip())
-                )
+            del_query = del_query.filter(HotelsOrm.title.icontains(title.strip()))
         # print(del_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(del_query)

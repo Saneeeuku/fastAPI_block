@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.Column("hashed_password", sa.String(length=100), nullable=False),
         sa.Column("nickname", sa.String(length=100), nullable=False, unique=True),
         sa.PrimaryKeyConstraint("id"),
-        )
+    )
 
 
 def downgrade() -> None:

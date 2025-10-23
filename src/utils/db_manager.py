@@ -6,24 +6,23 @@ from src.repos.users_repo import UsersRepository
 
 
 class DBManager:
+    def __init__(self, session_factory):
+        self.session_factory = session_factory
 
-	def __init__(self, session_factory):
-		self.session_factory = session_factory
+    async def __aenter__(self):
+        self.session = self.session_factory()
 
-	async def __aenter__(self):
-		self.session = self.session_factory()
+        self.hotels = HotelsRepository(self.session)
+        self.users = UsersRepository(self.session)
+        self.rooms = RoomsRepository(self.session)
+        self.bookings = BookingsRepository(self.session)
+        self.facilities = FacilitiesRepository(self.session)
+        self.room_facilities = RoomFacilitiesRepository(self.session)
+        return self
 
-		self.hotels = HotelsRepository(self.session)
-		self.users = UsersRepository(self.session)
-		self.rooms = RoomsRepository(self.session)
-		self.bookings = BookingsRepository(self.session)
-		self.facilities = FacilitiesRepository(self.session)
-		self.room_facilities = RoomFacilitiesRepository(self.session)
-		return self
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.session.rollback()
+        await self.session.close()
 
-	async def __aexit__(self, exc_type, exc_val, exc_tb):
-		await self.session.rollback()
-		await self.session.close()
-
-	async def commit(self):
-		await self.session.commit()
+    async def commit(self):
+        await self.session.commit()

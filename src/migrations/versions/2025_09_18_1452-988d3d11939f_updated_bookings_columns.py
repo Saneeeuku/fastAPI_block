@@ -21,9 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.add_column(
         "bookings",
-        sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
-        ),
+        sa.Column("created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False),
     )
     op.alter_column(
         "bookings",

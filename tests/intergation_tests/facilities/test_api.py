@@ -5,11 +5,6 @@ async def test_get_facilities(ac):
 
 async def test_post_facilities(ac):
     data = {"title": "Удобство"}
-    response = await ac.post(
-        "/facilities",
-        json=data
-    )
+    response = await ac.post("/facilities", json=data)
     data_title = response.json().get("data")["title"]
     assert response.status_code == 200 and data_title == data["title"]
-
-

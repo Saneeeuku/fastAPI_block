@@ -1,0 +1,8 @@
+[tool.ruff]
+exclude = [
+    ".pytest_cache",
+    ".ruff_cache",
+    "venv",
+]
+
+line-length = 100

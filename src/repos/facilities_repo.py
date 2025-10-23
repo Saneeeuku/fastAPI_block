@@ -40,7 +40,9 @@ class RoomFacilitiesRepository(BaseRepository):
         fac_to_delete = (
             select(room_current_fac.c.facility_id)
             .select_from(room_current_fac)
-            .outerjoin(new_fac, cast(ColumnElement[bool], room_current_fac.c.facility_id == new_fac.c.id))
+            .outerjoin(
+                new_fac, cast(ColumnElement[bool], room_current_fac.c.facility_id == new_fac.c.id)
+            )
             .where(new_fac.c.id.is_(None))
         )
 
@@ -58,14 +60,16 @@ class RoomFacilitiesRepository(BaseRepository):
         fac_to_add = (
             select(new_fac.c.id.label("facility_id"), literal(room_id).label("room_id"))
             .select_from(new_fac)
-            .outerjoin(room_current_fac, cast(ColumnElement[bool], new_fac.c.id == room_current_fac.c.facility_id))
+            .outerjoin(
+                room_current_fac,
+                cast(ColumnElement[bool], new_fac.c.id == room_current_fac.c.facility_id),
+            )
             .where(room_current_fac.c.facility_id.is_(None))
             .cte("fac_to_add")
         )
         try:
-            add_fac = (
-                insert(RoomsFacilitiesOrm)
-                .from_select(["facility_id", "room_id"], select(fac_to_add))
+            add_fac = insert(RoomsFacilitiesOrm).from_select(
+                ["facility_id", "room_id"], select(fac_to_add)
             )
             # print(add_fac.compile(compile_kwargs={"literal_binds": True}))
             await self.session.execute(add_fac)

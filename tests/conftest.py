@@ -54,26 +54,14 @@ async def ac(check_test_mode) -> AsyncClient:
 
 @pytest.fixture(scope="session", autouse=True)
 async def create_user(setup_db, ac) -> None:
-    data = {
-            "email": "qwerty@mail.com",
-            "password": "strongpassword",
-            "nickname": "coolnickname"
-        }
-    await ac.post(
-        "/auth/registration",
-        json=data
-    )
+    data = {"email": "qwerty@mail.com", "password": "strongpassword", "nickname": "coolnickname"}
+    await ac.post("/auth/registration", json=data)
 
 
 @pytest.fixture(scope="session")
 async def auth_ac(create_user, ac) -> AsyncClient:
-    data = {
-        "email": "qwerty@mail.com",
-        "password": "strongpassword"}
-    response = await ac.post(
-        "/auth/login",
-        json=data
-    )
+    data = {"email": "qwerty@mail.com", "password": "strongpassword"}
+    response = await ac.post("/auth/login", json=data)
     assert response.cookies.get("access_token")
     yield ac
 
@@ -82,6 +70,6 @@ def receive_data_from_json(json_filename: str) -> list[dict]:
     """Json files should be placed in tests folder
     :arg str json_filename: name with extension
     """
-    with open(f"./tests/mocks/{json_filename}", mode="r", encoding='utf-8') as f:
+    with open(f"./tests/mocks/{json_filename}", mode="r", encoding="utf-8") as f:
         file = json.load(f)
     return file

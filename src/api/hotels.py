@@ -16,20 +16,34 @@ async def get_hotels(db: DBDep):
     return await db.hotels.get_all()
 
 
-@router.get("/free", summary="Свободные отели",
-            description="Показывает отели со свободными для бронирования номерами и с дополнительными параметрами")
+@router.get(
+    "/free",
+    summary="Свободные отели",
+    description="Показывает отели со свободными для бронирования номерами и с дополнительными параметрами",
+)
 @cache(expire=10)
 async def get_free_hotels(
     db: DBDep,
     pagination: PaginationDep,
-    date_from: date = Query(openapi_examples={"1": {"value": "2024-08-01"}}, description="Формат даты и разделитель менять нельзя"),
-        date_to: date = Query(openapi_examples={"1": {"value": "2024-08-10"}}, description="Формат даты и разделитель менять нельзя"),
-        title: str | None = Query(None, description="Название отеля"),
-        location: str | None = Query(None, description="Локация"),
+    date_from: date = Query(
+        openapi_examples={"1": {"value": "2024-08-01"}},
+        description="Формат даты и разделитель менять нельзя",
+    ),
+    date_to: date = Query(
+        openapi_examples={"1": {"value": "2024-08-10"}},
+        description="Формат даты и разделитель менять нельзя",
+    ),
+    title: str | None = Query(None, description="Название отеля"),
+    location: str | None = Query(None, description="Локация"),
 ):
-    return await db.hotels.get_by_time(date_from=date_from, date_to=date_to,
-                                       title=title, location=location,
-                                       limit=pagination.per_page, offset=(pagination.page - 1) * pagination.per_page)
+    return await db.hotels.get_by_time(
+        date_from=date_from,
+        date_to=date_to,
+        title=title,
+        location=location,
+        limit=pagination.per_page,
+        offset=(pagination.page - 1) * pagination.per_page,
+    )
 
 
 @router.get("/{hotel_id}", summary="Отель", description="Получить отель по id")
@@ -42,22 +56,12 @@ async def get_hotel(db: DBDep, hotel_id: int):
 @router.post("/hotel", summary="Создание отеля")
 async def create_hotel(
     db: DBDep,
-    hotel_data: HotelAdd = Body(openapi_examples={
-        "1": {
-            "summary": "Сочи",
-            "value": {
-                "title": "Чёрная жемчужина",
-                "location": "sochi"
-            }
-        },
-        "2": {
-            "summary": "Дубай",
-            "value": {
-                "title": "Буржхалифа",
-                "location": "dubai"
-            }
+    hotel_data: HotelAdd = Body(
+        openapi_examples={
+            "1": {"summary": "Сочи", "value": {"title": "Чёрная жемчужина", "location": "sochi"}},
+            "2": {"summary": "Дубай", "value": {"title": "Буржхалифа", "location": "dubai"}},
         }
-    })
+    ),
 ):
     _hotel = await db.hotels.add(hotel_data)
     await db.commit()
@@ -85,11 +89,13 @@ async def delete_hotel(db: DBDep, hotel_id: int):
     return {"status": "OK"}
 
 
-@router.delete("", summary="Удаление нескольких отелей", description="Используется частичное сравнение")
+@router.delete(
+    "", summary="Удаление нескольких отелей", description="Используется частичное сравнение"
+)
 async def delete_few_hotels(
     db: DBDep,
     title: str | None = Query(None, description="Название отеля"),
-    location: str | None = Query(None, description="Локация")
+    location: str | None = Query(None, description="Локация"),
 ):
     await db.hotels.delete_few(title=title, location=location)
     await db.commit()

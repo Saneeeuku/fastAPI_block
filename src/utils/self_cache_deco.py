@@ -9,10 +9,7 @@ from pydantic import BaseModel
 from src.init import redis_manager
 
 
-def my_cache(
-    expire: int = None,
-    include_query: bool = True
-):
+def my_cache(expire: int = None, include_query: bool = True):
     def my_cache_outer(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -22,14 +19,16 @@ def my_cache(
             if include_query:
                 request = None
                 for arg in args:
-                    if hasattr(arg, 'query_params'):
+                    if hasattr(arg, "query_params"):
                         request = arg
                         break
-                if not request and 'request' in kwargs:
-                    request = kwargs['request']
+                if not request and "request" in kwargs:
+                    request = kwargs["request"]
 
-                if request and hasattr(request, 'query_params') and request.query_params:
-                    query_str = "&".join([f"{k}={v}" for k, v in sorted(request.query_params.items())])
+                if request and hasattr(request, "query_params") and request.query_params:
+                    query_str = "&".join(
+                        [f"{k}={v}" for k, v in sorted(request.query_params.items())]
+                    )
                     cache_key_parts.append(f"query_{hash(query_str)}")
             for k, v in kwargs.items():
                 if k not in param_names:
@@ -57,10 +56,12 @@ def my_cache(
                     await redis_manager.set(cache_key, json.dumps(res), expire=expire)
                 else:
                     await redis_manager.set(cache_key, json.dumps(res))
-                print(F"Added to Redis:\n{cache_key}")
+                print(f"Added to Redis:\n{cache_key}")
             except RedisError:
                 print("Error in adding cache... passing")
                 pass
             return res
+
         return wrapper
+
     return my_cache_outer

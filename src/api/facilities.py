@@ -18,15 +18,19 @@ async def get_all(db: DBDep):
 @router.post("", summary="Добавить одно из удобств")
 @cache(expire=10)
 # @my_cache(expire=10)
-async def create_facility(db: DBDep, data: FacilityRequestAdd = Body(openapi_examples={
-                          "1": {
-                              "summary": "Удобство",
-                              "value": {
-                                  "title": "Удобство",
-                              }
-                          }})):
+async def create_facility(
+    db: DBDep,
+    data: FacilityRequestAdd = Body(
+        openapi_examples={
+            "1": {
+                "summary": "Удобство",
+                "value": {
+                    "title": "Удобство",
+                },
+            }
+        }
+    ),
+):
     fac = await db.facilities.add(data=data)
     await db.commit()
     return {"status": "OK", "data": fac}
-
-
