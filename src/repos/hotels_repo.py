@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import select, delete
 
+from src.exceptions import DateViolationException
 from src.models.rooms_model import RoomsOrm
 from src.repos.base_repo import BaseRepository
 from src.models.hotels_model import HotelsOrm
@@ -16,7 +17,10 @@ class HotelsRepository(BaseRepository):
     async def get_by_time(
         self, date_from: date, date_to: date, location: str, title: str, limit: int, offset: int
     ):
-        free_rooms_ids_query = get_free_rooms_ids(date_from=date_from, date_to=date_to)
+        try:
+            free_rooms_ids_query = get_free_rooms_ids(date_from=date_from, date_to=date_to)
+        except DateViolationException as e:
+            raise e
         free_hotels_ids = (
             select(RoomsOrm.hotel_id.label("hotel_id"))
             .select_from(RoomsOrm)

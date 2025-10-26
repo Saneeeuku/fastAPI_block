@@ -1,8 +1,8 @@
 from datetime import date
 
-from fastapi import HTTPException
 from sqlalchemy import select
 
+from src.exceptions import NoFreeRoomsException, DateViolationException
 from src.repos.base_repo import BaseRepository
 from src.models.bookings_model import BookingsOrm
 from src.repos.mappers.mappers import BookingDataMapper
@@ -26,13 +26,13 @@ class BookingsRepository(BaseRepository):
         temp_booking = BookingAdd(
             user_id=user_id, room_id=room.id, date_from=date_from, date_to=date_to, price=room.price
         )
-        free_rooms_ids = await self.session.execute(
-            get_free_rooms_ids(temp_booking.date_from, temp_booking.date_to)
-        )
-        if room.id not in free_rooms_ids.scalars().all():
-            raise HTTPException(
-                status_code=422,
-                detail="Свободных номеров такого типа или в указанный промежуток времени нет",
+        try:
+            free_rooms_ids = await self.session.execute(
+                get_free_rooms_ids(temp_booking.date_from, temp_booking.date_to)
             )
+        except DateViolationException as e:
+            raise e
+        if room.id not in free_rooms_ids.scalars().all():
+            raise NoFreeRoomsException
         else:
             return await self.add(temp_booking)

@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
+from src.exceptions import NoFreeRoomsException, ObjectNotFoundException
 from src.schemas.bookings_schemas import BookingAddRequest
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
@@ -33,10 +34,16 @@ async def make_booking(
         }
     ),
 ):
-    room_to_booking = await db.rooms.get_one(id=data.room_id)
-    booking = await db.bookings.create_booking(
-        user_id=user_id, room=room_to_booking, **data.model_dump()
-    )
+    try:
+        room_to_booking = await db.rooms.get_one(id=data.room_id)
+    except ObjectNotFoundException:
+        raise HTTPException(status_code=404, detail="Номер не найден")
+    try:
+        booking = await db.bookings.create_booking(
+            user_id=user_id, room=room_to_booking, **data.model_dump()
+        )
+    except NoFreeRoomsException as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     await db.commit()
     return {"status": "OK", "data": booking}
 

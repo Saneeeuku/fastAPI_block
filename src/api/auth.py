@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body, HTTPException, Response
 
 from src.api.dependencies import UserIdDep, DBDep
+from src.exceptions import DataConflictException
 from src.schemas.users_schemas import UserRequestAdd, UserAdd, UserRequestLogin
 from src.services.auth_service import AuthService
 
@@ -27,7 +28,10 @@ async def register_user(
     new_user = UserAdd(
         email=user_data.email, hashed_password=hashed_pass, nickname=user_data.nickname
     )
-    await db.users.add(new_user)
+    try:
+        await db.users.add(new_user)
+    except DataConflictException:
+        raise HTTPException(status_code=409, detail="Пользователь уже существует")
     await db.commit()
     return {"status": "OK"}
 

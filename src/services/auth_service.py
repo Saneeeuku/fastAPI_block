@@ -1,11 +1,11 @@
 from datetime import timedelta, datetime, timezone
 
-from fastapi import HTTPException
 from passlib.context import CryptContext
 import jwt
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 
 from src.config import settings
+from src.exceptions import LoginException
 
 
 class AuthService:
@@ -34,5 +34,5 @@ class AuthService:
         try:
             res = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         except (ExpiredSignatureError, DecodeError) as e:
-            raise HTTPException(status_code=401, detail=f"{e.__class__.__name__}: {e}")
+            raise LoginException(detail=f"{e.__class__.__name__}: {e}")
         return res

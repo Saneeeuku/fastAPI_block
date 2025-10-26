@@ -1,8 +1,9 @@
 from datetime import date
 
-from fastapi import Query, Body, APIRouter
+from fastapi import Query, Body, APIRouter, HTTPException
 from fastapi_cache.decorator import cache
 
+from src.exceptions import DateViolationException, ObjectNotFoundException
 from src.schemas.hotels_schemas import HotelAdd, HotelPatch
 from src.api.dependencies import PaginationDep, DBDep
 
@@ -36,21 +37,27 @@ async def get_free_hotels(
     title: str | None = Query(None, description="Название отеля"),
     location: str | None = Query(None, description="Локация"),
 ):
-    return await db.hotels.get_by_time(
-        date_from=date_from,
-        date_to=date_to,
-        title=title,
-        location=location,
-        limit=pagination.per_page,
-        offset=(pagination.page - 1) * pagination.per_page,
-    )
+    try:
+        return await db.hotels.get_by_time(
+            date_from=date_from,
+            date_to=date_to,
+            title=title,
+            location=location,
+            limit=pagination.per_page,
+            offset=(pagination.page - 1) * pagination.per_page,
+        )
+    except DateViolationException as e:
+        raise HTTPException(status_code=412, detail=e.detail)
 
 
 @router.get("/{hotel_id}", summary="Отель", description="Получить отель по id")
 # @my_cache(expire=10)
 @cache(expire=10)
 async def get_hotel(db: DBDep, hotel_id: int):
-    return await db.hotels.get_one(id=hotel_id)
+    try:
+        return await db.hotels.get_one(id=hotel_id)
+    except ObjectNotFoundException:
+        raise HTTPException(status_code=404, detail="Отель не найден")
 
 
 @router.post("/hotel", summary="Создание отеля")
@@ -63,9 +70,9 @@ async def create_hotel(
         }
     ),
 ):
-    _hotel = await db.hotels.add(hotel_data)
+    hotel = await db.hotels.add(hotel_data)
     await db.commit()
-    return {"status": "OK", "hotel": _hotel}
+    return {"status": "OK", "hotel": hotel}
 
 
 @router.put("/{hotel_id}", summary="Изменение всех данных отеля")
