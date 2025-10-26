@@ -8,7 +8,7 @@ from src.models.rooms_model import RoomsOrm
 
 
 def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = None):
-    if date_from > date_to:
+    if date_from >= date_to:
         raise DateViolationException
     booked_rooms_count = (
         select(BookingsOrm.room_id, func.count("*").label("booked_rooms"))

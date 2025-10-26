@@ -4,8 +4,8 @@ from pytest import mark
 @mark.parametrize(
     "email, password, nickname, status_code",
     [
-        ("qwerty@mail.com", "strongpassword", "coolnickname", 422),
-        ("qwerty1@mail.com", "strongpassword", "coolnickname", 422),
+        ("qwerty@mail.com", "strongpassword", "coolnickname", 409),
+        ("qwerty1@mail.com", "strongpassword", "coolnickname", 409),
         ("qwerty1@mail.com", "strongpassword", "coolnickname1", 200),
         ("qwerty2@mail.com", "strongpassword", "coolnickname2", 200),
         ("qwerty2@", "strongpassword", "coolnickname3", 422),

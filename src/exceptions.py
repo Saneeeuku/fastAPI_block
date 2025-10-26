@@ -2,6 +2,7 @@ class BaseBookingException(Exception):
     detail = "Неустановленная ошибка"
 
     def __init__(self, *args, **kwargs):
+        # noinspection PyArgumentList
         super().__init__(self.detail, *args, **kwargs)
 
 
@@ -22,4 +23,4 @@ class LoginException(BaseBookingException):
 
 
 class DateViolationException(BaseBookingException):
-    detail = "Дата выезда позже даты заезда"
+    detail = "Некорректные даты (выезд относительно заезда)"

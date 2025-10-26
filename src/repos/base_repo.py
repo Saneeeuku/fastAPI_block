@@ -1,3 +1,6 @@
+import logging
+
+from asyncpg.exceptions import UniqueViolationError
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete as sqla_delete, update
 from sqlalchemy.exc import NoResultFound, MultipleResultsFound, IntegrityError
@@ -20,7 +23,7 @@ class BaseRepository:
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_all(self, *args, **kwargs):
+    async def get_all(self):
         return await self.get_filtered()
 
     async def get_one_or_none(self, **filters):
@@ -52,8 +55,15 @@ class BaseRepository:
         add_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         try:
             result = await self.session.execute(add_stmt)
-        except IntegrityError:
-            raise DataConflictException
+        except IntegrityError as e:
+            logging.error(
+                f"Не удалось добавить данные в базу данных ({data=}, ошибка {type(e.orig.__cause__)=})"
+            )
+            if isinstance(e.orig.__cause__, UniqueViolationError):
+                raise DataConflictException from e
+            else:
+                logging.error(f"Неизвестная ошибка ({data=}, ошибка {type(e.orig.__cause__)=})")
+                raise e
         result = result.scalars().one()
         return self.mapper.map_to_domain_entity(result)
 
@@ -81,9 +91,10 @@ class BaseRepository:
         await self.session.execute(upd_stmt)
 
     async def delete(self, *q_filter, **filters):
-        try:
-            await self.get_one(**filters)
-        except ObjectNotFoundException as e:
-            raise e
+        if filters:
+            try:
+                await self.get_one(**filters)
+            except ObjectNotFoundException as e:
+                raise e
         del_stmt = sqla_delete(self.model).filter(*q_filter).filter_by(**filters)
         await self.session.execute(del_stmt)
