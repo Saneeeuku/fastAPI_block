@@ -7,7 +7,6 @@ from src.services.base_service import BaseService
 
 
 class HotelsService(BaseService):
-
     async def get_hotels(self):
         return await self.db.hotels.get_all()
 

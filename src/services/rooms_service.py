@@ -3,7 +3,12 @@ from datetime import date
 from src.api.dependencies import RoomsParamsDep
 from src.exceptions import ObjectNotFoundException, RoomNotFoundException
 from src.schemas.facilities_schemas import RoomFacilityRequestAdd
-from src.schemas.rooms_schemas import RoomRequestAdd, RoomAdd, RoomPatchWithFacilities, RoomPatchOnly
+from src.schemas.rooms_schemas import (
+    RoomRequestAdd,
+    RoomAdd,
+    RoomPatchWithFacilities,
+    RoomPatchOnly,
+)
 from src.services.base_service import BaseService
 from src.services.hotels_service import HotelsService
 
@@ -28,10 +33,12 @@ class RoomsService(BaseService):
         rooms = await self.db.rooms.get_all_with_filters(hotel_id=hotel_id, **data.model_dump())
         return rooms
 
-    async def get_free_rooms( self, hotel_id: int, date_from: date, date_to: date):
+    async def get_free_rooms(self, hotel_id: int, date_from: date, date_to: date):
         await HotelsService(self.db).get_hotel(hotel_id)
 
-        rooms = await self.db.rooms.get_by_time(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
+        rooms = await self.db.rooms.get_by_time(
+            date_from=date_from, date_to=date_to, hotel_id=hotel_id
+        )
         return rooms
 
     async def get_room(self, hotel_id: int, room_id: int):
@@ -48,7 +55,9 @@ class RoomsService(BaseService):
             await self.db.rooms.edit(room_data, id=room_id, hotel_id=hotel_id)
         except ObjectNotFoundException as e:
             raise RoomNotFoundException from e
-        await self.db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
+        await self.db.room_facilities.change_facilities(
+            room_id=room_id, facilities_ids=data.facilities_ids
+        )
         await self.db.commit()
 
     async def modify_room_partially(
@@ -65,7 +74,9 @@ class RoomsService(BaseService):
         except ObjectNotFoundException as e:
             raise RoomNotFoundException from e
         if data.facilities_ids:
-            await self.db.room_facilities.change_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
+            await self.db.room_facilities.change_facilities(
+                room_id=room_id, facilities_ids=data.facilities_ids
+            )
         await self.db.commit()
 
     async def delete_room(self, hotel_id: int, room_id: int):

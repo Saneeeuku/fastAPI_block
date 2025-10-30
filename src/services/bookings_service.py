@@ -10,11 +10,11 @@ class BookingsService(BaseService):
     async def get_user_bookings(self, user_id: UserIdDep):
         return await self.db.bookings.get_filtered(user_id=user_id)
 
-    async def make_booking(self, user_id: UserIdDep, data: BookingAddRequest ):
+    async def make_booking(self, user_id: UserIdDep, data: BookingAddRequest):
         room_to_booking = await self.db.rooms.get_one(id=data.room_id)
         booking = await self.db.bookings.create_booking(
             user_id=user_id, room=room_to_booking, **data.model_dump()
-            )
+        )
         await self.db.commit()
         return booking
 
