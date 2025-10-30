@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Body, HTTPException, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import DataConflictException
-from src.schemas.users_schemas import UserRequestAdd, UserAdd, UserRequestLogin
+from src.exceptions import LoginException
+from src.schemas.users_schemas import UserRequestAdd, UserRequestLogin
 from src.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Аутентификация и авторизация"])
@@ -24,15 +24,10 @@ async def register_user(
         }
     ),
 ):
-    hashed_pass = AuthService().hash_password(user_data.password)
-    new_user = UserAdd(
-        email=user_data.email, hashed_password=hashed_pass, nickname=user_data.nickname
-    )
     try:
-        await db.users.add(new_user)
-    except DataConflictException:
-        raise HTTPException(status_code=409, detail="Пользователь уже существует")
-    await db.commit()
+        await AuthService(db).register_user(user_data)
+    except LoginException as e:
+        raise HTTPException(status_code=409, detail=e.detail)
     return {"status": "OK"}
 
 
@@ -52,17 +47,17 @@ async def login_user(
         }
     ),
 ):
-    user = await db.users.get_user_with_hashed_password(email=user_data.email)
-    if not AuthService().verify_password(user_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Неверный логин или пароль")
-    token = AuthService().create_access_token({"id": user.id, "nickname": user.nickname})
+    try:
+        token = await AuthService(db).login_user(user_data)
+    except LoginException as e:
+        raise HTTPException(status_code=409, detail=e.detail)
     response.set_cookie("access_token", token)
     return {"access_token": token}
 
 
 @router.get("/me")
 async def get_me(db: DBDep, user_id: UserIdDep):
-    user = await db.users.get_one_or_none(id=user_id)
+    user = await AuthService(db).get_me(user_id)
     return user
 
 

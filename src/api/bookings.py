@@ -3,18 +3,19 @@ from fastapi import APIRouter, Body, HTTPException
 from src.api.dependencies import DBDep, UserIdDep
 from src.exceptions import NoFreeRoomsException, ObjectNotFoundException
 from src.schemas.bookings_schemas import BookingAddRequest
+from src.services.bookings_service import BookingsService
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 
 @router.get("", summary="Получить все значения таблицы бронирований")
 async def get_bookings(db: DBDep):
-    return await db.bookings.get_all()
+    return await BookingsService(db).get_bookings()
 
 
 @router.get("/me", summary="Получить бронирования пользователя")
 async def get_user_bookings(db: DBDep, user_id: UserIdDep):
-    return await db.bookings.get_filtered(user_id=user_id)
+    return await BookingsService(db).get_user_bookings(user_id)
 
 
 @router.post("", summary="Создать бронирование")
@@ -35,21 +36,18 @@ async def make_booking(
     ),
 ):
     try:
-        room_to_booking = await db.rooms.get_one(id=data.room_id)
-    except ObjectNotFoundException:
-        raise HTTPException(status_code=404, detail="Номер не найден")
-    try:
-        booking = await db.bookings.create_booking(
-            user_id=user_id, room=room_to_booking, **data.model_dump()
-        )
-    except NoFreeRoomsException as e:
-        raise HTTPException(status_code=404, detail=e.detail)
-    await db.commit()
+        booking = await BookingsService(db).make_booking(user_id, data)
+    except (ObjectNotFoundException, NoFreeRoomsException) as e:
+        if isinstance(e, ObjectNotFoundException):
+            raise HTTPException(status_code=404, detail="Номер не найден")
+        elif isinstance(e, NoFreeRoomsException):
+            raise HTTPException(status_code=404, detail=e.detail)
+        else:
+            raise e
     return {"status": "OK", "data": booking}
 
 
 @router.delete("/delete/{booking_id}", summary="Удалить бронирование по его id")
 async def delete_booking(db: DBDep, user_id: UserIdDep, booking_id: int):
-    await db.bookings.delete(id=booking_id, user_id=user_id)
-    await db.commit()
+    await BookingsService(db).delete_booking(user_id, booking_id)
     return {"status": "OK"}

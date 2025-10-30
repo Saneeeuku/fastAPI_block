@@ -5,9 +5,7 @@ from fastapi import APIRouter, Body, Query, HTTPException
 from src.exceptions import DateViolationException, DataConflictException, ObjectNotFoundException
 from src.schemas.rooms_schemas import (
     RoomPatchWithFacilities,
-    RoomRequestAdd,
-    RoomAdd,
-    RoomPatchOnly,
+    RoomRequestAdd
 )
 from src.api.dependencies import RoomsParamsDep, DBDep
 from src.services.rooms_service import RoomsService

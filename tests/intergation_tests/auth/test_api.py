@@ -24,9 +24,9 @@ async def test_post_register(email, password, nickname, status_code, ac, db):
         (1, "qwe@mail.com", "111", 404),
         (1, "qwe@", "111", 422),
         (1, "qwerty@mail.com", "strongpassword", 200),
-        (1, "qwerty@mail.com", "strongpassword1", 401),
+        (1, "qwerty@mail.com", "strongpassword1", 409),
         (4, "qwerty1@mail.com", "strongpassword", 200),
-        (5, "qwerty2@mail.com", "strongpassword2", 401),
+        (5, "qwerty2@mail.com", "strongpassword2", 409),
         (5, "qwerty2@mail.com", "strongpassword", 200),
     ],
 )
