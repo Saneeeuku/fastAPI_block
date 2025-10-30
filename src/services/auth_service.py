@@ -13,7 +13,8 @@ from src.services.base_service import BaseService
 class AuthService(BaseService):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    def create_access_token(self, data: dict):
+    @staticmethod
+    def create_access_token(data: dict):
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -30,7 +31,8 @@ class AuthService(BaseService):
     def verify_password(self, plain_password: str, hashed_password: str):
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    def decode_token(self, token: str) -> dict | None:
+    @staticmethod
+    def decode_token(token: str) -> dict | None:
         if token is None:
             return None
         try:

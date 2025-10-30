@@ -1,7 +1,7 @@
 from datetime import date
 
 from src.api.dependencies import RoomsParamsDep
-from src.exceptions import ObjectNotFoundException, RoomNotFoundException, DataConflictException, HotelNotFoundException
+from src.exceptions import ObjectNotFoundException, RoomNotFoundException
 from src.schemas.facilities_schemas import RoomFacilityRequestAdd
 from src.schemas.rooms_schemas import RoomRequestAdd, RoomAdd, RoomPatchWithFacilities, RoomPatchOnly
 from src.services.base_service import BaseService
