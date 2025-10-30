@@ -1,5 +1,5 @@
 class BaseBookingException(Exception):
-    detail = "Неустановленная ошибка"
+    detail: str = "Неустановленная ошибка"
 
     def __init__(self, *args, **kwargs):
         # noinspection PyArgumentList
@@ -8,6 +8,14 @@ class BaseBookingException(Exception):
 
 class ObjectNotFoundException(BaseBookingException):
     detail = "Объект не найден"
+
+
+class RoomNotFoundException(ObjectNotFoundException):
+    detail = "Номер не найден"
+
+
+class HotelNotFoundException(ObjectNotFoundException):
+    detail = "Отель не найден"
 
 
 class NoFreeRoomsException(BaseBookingException):

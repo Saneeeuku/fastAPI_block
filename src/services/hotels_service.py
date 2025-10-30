@@ -1,6 +1,7 @@
 from datetime import date
 
 from src.api.dependencies import PaginationDep
+from src.exceptions import ObjectNotFoundException, HotelNotFoundException
 from src.schemas.hotels_schemas import HotelAdd, HotelPatch
 from src.services.base_service import BaseService
 
@@ -11,7 +12,10 @@ class HotelsService(BaseService):
         return await self.db.hotels.get_all()
 
     async def get_hotel(self, _id: int):
-        return await self.db.hotels.get_one(id=_id)
+        try:
+            return await self.db.hotels.get_one(id=_id)
+        except ObjectNotFoundException as e:
+            raise HotelNotFoundException from e
 
     async def get_free_hotels(
         self,

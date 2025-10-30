@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from src.exceptions import DateViolationException, ObjectNotFoundException
+from src.exceptions import DateViolationException, ObjectNotFoundException, RoomNotFoundException
 from src.repos.base_repo import BaseRepository
 from src.models.rooms_model import RoomsOrm
 from src.repos.mappers.mappers import RoomDataMapper
@@ -32,7 +32,7 @@ class RoomsRepository(BaseRepository):
         try:
             result = await self.get_one_from_query_result(result)
         except ObjectNotFoundException as e:
-            raise e
+            raise RoomNotFoundException from e
         return RoomWithRels.model_validate(result, from_attributes=True)
 
     async def get_by_time(self, hotel_id: int, date_from: date, date_to: date):

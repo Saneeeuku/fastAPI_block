@@ -11,4 +11,5 @@ class ImagesService(BaseService):
         image_path = f"src/static/images/{image.filename}"
         with open(image_path, mode="wb+") as f:
             shutil.copyfileobj(image.file, f)
+
         resize_image.delay(image_path)

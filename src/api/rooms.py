@@ -2,7 +2,8 @@ from datetime import date
 
 from fastapi import APIRouter, Body, Query, HTTPException
 
-from src.exceptions import DateViolationException, DataConflictException, ObjectNotFoundException
+from src.exceptions import DateViolationException, ObjectNotFoundException, \
+    RoomNotFoundException, HotelNotFoundException
 from src.schemas.rooms_schemas import (
     RoomPatchWithFacilities,
     RoomRequestAdd
@@ -68,8 +69,8 @@ async def create_room(
 ):
     try:
         room = await RoomsService(db).create_room(hotel_id, data)
-    except DataConflictException:
-        raise HTTPException(status_code=404, detail="Отель не найден")
+    except HotelNotFoundException as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return {"status": "OK", "data": room}
 
 
@@ -79,7 +80,10 @@ async def create_room(
     description="По названию, описанию (частичное сравнение) и (или) цене",
 )
 async def get_rooms(db: DBDep, hotel_id: int, data: RoomsParamsDep):
-    rooms = await RoomsService(db).get_rooms(hotel_id, data)
+    try:
+        rooms = await RoomsService(db).get_rooms(hotel_id, data)
+    except HotelNotFoundException as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return {"status": "OK", "data": rooms}
 
 
@@ -98,8 +102,13 @@ async def get_free_rooms(
 ):
     try:
         rooms = await RoomsService(db).get_free_rooms(hotel_id, date_from, date_to)
-    except DateViolationException as e:
-        raise HTTPException(status_code=412, detail=e.detail)
+    except (DateViolationException, HotelNotFoundException) as e:
+        if isinstance(e, DateViolationException):
+            raise HTTPException(status_code=412, detail=e.detail)
+        elif isinstance(e, HotelNotFoundException):
+            raise HTTPException(status_code=404, detail=e.detail)
+        else:
+            raise e
     return {"status": "OK", "data": rooms}
 
 
@@ -107,8 +116,8 @@ async def get_free_rooms(
 async def get_room(db: DBDep, hotel_id: int, room_id: int):
     try:
         room = await RoomsService(db).get_room(hotel_id, room_id)
-    except ObjectNotFoundException:
-        raise HTTPException(status_code=404, detail="Номер не найден")
+    except (HotelNotFoundException, RoomNotFoundException) as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return {"status": "OK", "data": room}
 
 
@@ -118,8 +127,8 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 async def modify_room(db: DBDep, hotel_id: int, room_id: int, data: RoomRequestAdd):
     try:
         await RoomsService(db).modify_room(hotel_id, room_id, data)
-    except ObjectNotFoundException:
-        raise HTTPException(status_code=404, detail="Номер не найден")
+    except (HotelNotFoundException, RoomNotFoundException) as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return {"status": "OK"}
 
 
@@ -129,8 +138,8 @@ async def modify_room_partially(
 ):
     try:
         await RoomsService(db).modify_room_partially(hotel_id, room_id, data)
-    except ObjectNotFoundException:
-        raise HTTPException(status_code=404, detail="Номер не найден")
+    except (HotelNotFoundException, RoomNotFoundException) as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return {"status": "OK"}
 
 
@@ -138,6 +147,6 @@ async def modify_room_partially(
 async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     try:
         await RoomsService(db).delete_room(hotel_id, room_id)
-    except ObjectNotFoundException:
-        raise HTTPException(status_code=404, detail="Номер не найден")
+    except (HotelNotFoundException, RoomNotFoundException) as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return {"status": "OK"}
