@@ -1,6 +1,5 @@
 services:
-  back_service:
-    container_name: "booking_back"
+  booking_backend:
     build:
       context: .
     ports:
@@ -10,21 +9,16 @@ services:
     env_file:
       - ".env"
 
-  celery_worker_service:
-    container_name: "booking_celery_worker"
-    build:
-      context: .
+  booking_cache_redis:
+    image: redis:8.2.2
+    ports:
+      - "7379:6379"
     networks:
       - my_network
     env_file:
       - ".env"
-    depends_on:
-      - back_service
-    command:
-      - "celery --app=src.tasks.celery_base:celery_app worker -l INFO --uid=nobody --gid=nogroup"
 
-  celery_beat_service:
-    container_name: "booking_celery_beat"
+  booking_celery_worker:
     build:
       context: .
     networks:
@@ -32,10 +26,22 @@ services:
     env_file:
       - ".env"
     depends_on:
-      - back_service
-      - celery_worker_service
-    command:
-      - "celery --app=src.tasks.celery_base:celery_app worker -l INFO --uid=nobody --gid=nogroup"
+      - booking_backend
+      - booking_cache_redis
+    command: "celery --app=src.tasks.celery_base:celery_app worker --loglevel=INFO"
+
+  booking_celery_beat:
+    build:
+      context: .
+    networks:
+      - my_network
+    env_file:
+      - ".env"
+    depends_on:
+      - booking_backend
+      - booking_celery_worker
+      - booking_cache_redis
+    command: "celery --app=src.tasks.celery_base:celery_app beat -l INFO"
 
 networks:
   my_network:
