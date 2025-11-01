@@ -33,9 +33,10 @@ async def get_today_checkins_bookings():
     logging.debug("Start async today checkins")
     async with DBManager(session_factory=async_new_session_null_pool) as db:
         today_bookings = await db.bookings.get_today_checkins()
-    logging.debug(f"{today_bookings=}")
+    return today_bookings[0].model_dump()
 
 
 @celery_app.task(name="today_checkins_bookings")
 def send_emails_to_users_with_today_checkins():
-    asyncio.run(get_today_checkins_bookings())
+    result = asyncio.run(get_today_checkins_bookings())
+    return result
