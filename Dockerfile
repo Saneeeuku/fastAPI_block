@@ -7,4 +7,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["python", "-m", "src.main"]
+CMD ["/app/docker_start_with_migrations.sh"]
