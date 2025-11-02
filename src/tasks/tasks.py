@@ -33,7 +33,7 @@ async def get_today_checkins_bookings():
     logging.debug("Start async today checkins")
     async with DBManager(session_factory=async_new_session_null_pool) as db:
         today_bookings = await db.bookings.get_today_checkins()
-    return today_bookings[0].model_dump()
+    return today_bookings
 
 
 @celery_app.task(name="today_checkins_bookings")
