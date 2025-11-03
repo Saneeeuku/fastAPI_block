@@ -8,7 +8,7 @@ class RedisManager:
     def __init__(self, host: str, port: int):
         self.host = host
         self.port = port
-        self.redis: redis.Redis | None = None
+        self.redis: redis.Redis
 
     async def connect(self):
         try:
@@ -17,7 +17,7 @@ class RedisManager:
             logging.error(f"Не удалось подключиться Redis host={self.host}, port={self.port}")
         logging.info(f"Подключено к Redis host={self.host}, port={self.port}")
 
-    async def set(self, key: str, val: str, expire: int = None):
+    async def set(self, key: str, val: str, expire: int | None = None):
         if expire:
             await self.redis.set(key, val, ex=expire)
         else:
