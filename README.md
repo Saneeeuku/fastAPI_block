@@ -26,13 +26,13 @@ Create src/static/images folder
 ```bash
 mkdir src/static/images
 ```
-Docker command
+Docker DB command
 ```bash
 docker run --name booking_db -p 6432:5432 \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=booking \
   --network=my_network \
-  --volume pg-booking-data:/var/lib/postgresql \
+  --volume pg_booking_data:/var/lib/postgresql \
   -d postgres:18.0
 ```

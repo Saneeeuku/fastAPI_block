@@ -9,7 +9,9 @@ services:
       - my_network
     env_file:
       - ".env"
-    command: ["/app/docker_start_with_migrations.sh"] # sh -c "alembic upgrade head && python -m src.main"
+    volumes:
+      - shared_images:/app/src/static/images
+    command: sh -c "alembic upgrade head && python -m src.main"
 
   booking_cache_redis:
     image: redis:8.2.2
@@ -24,6 +26,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    volumes:
+      - redis_data:/data
 
   booking_celery_worker:
     build:
@@ -37,7 +41,9 @@ services:
     depends_on:
       - booking_backend
       - booking_cache_redis
-    command: ["/app/docker_start_celery.sh"] # celery --app=src.tasks.celery_base:celery_app worker --loglevel=INFO
+    volumes:
+      - shared_images:/app/src/static/images
+    command: celery --app=src.tasks.celery_base:celery_app worker --loglevel=INFO
 
   booking_celery_beat:
     build:
@@ -52,7 +58,11 @@ services:
       - booking_backend
       - booking_celery_worker
       - booking_cache_redis
-    command: "celery --app=src.tasks.celery_base:celery_app beat -l INFO"
+    command: celery --app=src.tasks.celery_base:celery_app beat -l INFO
+
+volumes:
+  shared_images:
+  redis_data:
 
 networks:
   my_network:
