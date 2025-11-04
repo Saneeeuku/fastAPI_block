@@ -9,7 +9,7 @@ services:
       - my_network
     env_file:
       - ".env"
-    command: ["/app/docker_start_with_migrations.sh"]
+    command: ["/app/docker_start_with_migrations.sh"] # sh -c "alembic upgrade head && python -m src.main"
 
   booking_cache_redis:
     image: redis:8.2.2
@@ -37,7 +37,7 @@ services:
     depends_on:
       - booking_backend
       - booking_cache_redis
-    command: ["/app/docker_start_celery.sh"]
+    command: ["/app/docker_start_celery.sh"] # celery --app=src.tasks.celery_base:celery_app worker --loglevel=INFO
 
   booking_celery_beat:
     build:

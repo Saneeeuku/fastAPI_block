@@ -10,7 +10,7 @@ COPY . .
 ENV PATH="/usr/local/bin:${PATH}"
 ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-RUN sed -i 's/\r$//' docker_start_celery__non_root.sh
+RUN sed -i 's/\r$//' docker_start_celery.sh
 RUN sed -i 's/\r$//' docker_start_with_migrations.sh
 
 RUN adduser --disabled-password --gecos '' --uid 1000 celeryuser
