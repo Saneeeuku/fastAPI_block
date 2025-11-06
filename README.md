@@ -26,7 +26,7 @@ Create src/static/images folder
 ```bash
 mkdir src/static/images
 ```
-Docker DB command
+Docker commands
 ```bash
 docker run --name booking_db -p 6432:5432 \
   -e POSTGRES_USER=postgres \
@@ -36,3 +36,7 @@ docker run --name booking_db -p 6432:5432 \
   --volume pg_booking_data:/var/lib/postgresql \
   -d postgres:18.0
 ```
+```bash
+docker run --name booking_nginx --network=my_network --volume ./nginx.conf:/etc/nginx/nginx.conf --rm -p 80:80 nginx
+```
+# --volume //c/Users/shark/PycharmProjects/FastAPI_booking_gitlab/nginx.conf:/etc/nginx/nginx.conf - for windows need to conf full path
