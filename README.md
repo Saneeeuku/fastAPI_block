@@ -37,6 +37,11 @@ docker run --name booking_db -p 6432:5432 \
   -d postgres:18.0
 ```
 ```bash
-docker run --name booking_nginx --network=my_network --volume ./nginx.conf:/etc/nginx/nginx.conf --rm -p 80:80 nginx
+docker run --name booking_nginx \
+--network=my_network \
+--volume ./nginx.conf:/etc/nginx/nginx.conf \
+--volume /etc/letsencrypt:/etc/letsencrypt \
+--volume /var/lib/letsencrypt:/var/lib/letsencrypt \
+--rm -p 443:443 nginx
 ```
-# --volume //c/Users/shark/PycharmProjects/FastAPI_booking_gitlab/nginx.conf:/etc/nginx/nginx.conf - for windows need to conf full path
+--volume //c/Users/user/project/nginx.conf:/etc/nginx/nginx.conf - for windows need full path to conf
