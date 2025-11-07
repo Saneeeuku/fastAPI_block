@@ -5,7 +5,12 @@ import jwt
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 
 from src.config import settings
-from src.exceptions import LoginException, DataConflictException
+from src.exceptions import (
+    TokenException,
+    DataConflictException,
+    UserConflictException,
+    LoginException,
+)
 from src.schemas.users_schemas import UserRequestAdd, UserAdd, UserRequestLogin
 from src.services.base_service import BaseService
 
@@ -38,7 +43,7 @@ class AuthService(BaseService):
         try:
             res = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         except (ExpiredSignatureError, DecodeError) as e:
-            raise LoginException(detail=f"{e.__class__.__name__}: {e}")
+            raise TokenException from e
         return res
 
     async def register_user(self, user_data: UserRequestAdd):
@@ -49,7 +54,7 @@ class AuthService(BaseService):
         try:
             await self.db.users.add(new_user)
         except DataConflictException as e:
-            raise LoginException from e
+            raise UserConflictException from e
         await self.db.commit()
 
     async def login_user(self, user_data: UserRequestLogin):

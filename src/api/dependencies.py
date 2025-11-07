@@ -6,6 +6,7 @@ from fastapi import Query, Depends, Request, HTTPException
 from src.services.auth_service import AuthService
 from src.utils.db_manager import DBManager
 from src.database import async_new_session
+from src.exceptions import LoginException
 
 
 class PaginationParams(BaseModel):
@@ -32,7 +33,10 @@ def get_token(request: Request):
 
 
 def get_current_user_id(token: str = Depends(get_token)):
-    data = AuthService().decode_token(token)
+    try:
+        data = AuthService().decode_token(token)
+    except LoginException as e:
+        raise HTTPException(status_code=401, detail=e.detail)
     user_id = data.get("id")
     if user_id is None:
         raise HTTPException(status_code=401, detail="id не найден")

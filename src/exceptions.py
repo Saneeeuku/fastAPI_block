@@ -26,8 +26,16 @@ class DataConflictException(BaseBookingException):
     detail = "Конфликт данных"
 
 
+class UserConflictException(DataConflictException):
+    detail = "Пользователь уже существует"
+
+
 class LoginException(BaseBookingException):
     detail = "Неверный логин или пароль"
+
+
+class TokenException(LoginException):
+    detail = "Проблема с токеном"
 
 
 class DateViolationException(BaseBookingException):
