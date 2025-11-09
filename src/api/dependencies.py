@@ -16,7 +16,6 @@ class PaginationParams(BaseModel):
 
 class TokenDecodeParams(BaseModel):
     id: int
-    nickname: str
 
 
 class RoomsParams(BaseModel):

@@ -1,6 +1,7 @@
 stages:
   - build
   - lint_format
+  # - type_check
   - migrations
   - test
   - deploy
@@ -22,6 +23,11 @@ Format job:
   stage: lint_format
   script:
     - docker run --rm --network my_network booking_api ruff format --check
+
+# Type Checking:
+#   stage: type_check
+#   script:
+#     - docker run --rm --network my_network booking_api ruff format --check
   
 Migrations job:
   stage: migrations

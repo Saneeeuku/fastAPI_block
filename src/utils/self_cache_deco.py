@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from src.init import redis_manager
 
 
-def my_cache(expire: int = None, include_query: bool = True):
+def my_cache(expire: int | None = None, include_query: bool = True):
     def my_cache_outer(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):

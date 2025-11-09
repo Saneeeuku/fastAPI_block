@@ -3,7 +3,23 @@ exclude = [
     ".pytest_cache",
     ".ruff_cache",
     ".idea",
-    "venv",
+    "VEnv",
 ]
 
 line-length = 100
+
+[tool.pyright] 
+include = ["src", "tests"]
+exclude = [  
+    ".pytest_cache",
+    ".ruff_cache",
+    ".idea",
+    ]
+typeCheckingMode = "basic"
+
+pythonVersion = "3.11"
+venvPath = "."
+venv = "VEnv"
+
+reportMissingImports = false
+reportMissingModuleSource = false

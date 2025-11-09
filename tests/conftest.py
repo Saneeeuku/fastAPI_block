@@ -1,5 +1,6 @@
 import json
 from collections.abc import AsyncIterable
+from typing import AsyncGenerator
 
 import pytest
 from httpx import AsyncClient, ASGITransport
@@ -26,7 +27,7 @@ async def get_db_null_pool() -> AsyncIterable:
 
 
 @pytest.fixture(scope="session")
-async def db(check_test_mode) -> DBManager:
+async def db(check_test_mode) -> AsyncGenerator:
     app.dependency_overrides[get_db] = get_db_null_pool
     async for db in get_db_null_pool():
         yield db
@@ -47,7 +48,7 @@ async def setup_db(check_test_mode, db) -> None:
 
 
 @pytest.fixture(scope="session")
-async def ac(check_test_mode) -> AsyncClient:
+async def ac(check_test_mode) -> AsyncGenerator:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
@@ -59,7 +60,7 @@ async def create_user(setup_db, ac) -> None:
 
 
 @pytest.fixture(scope="session")
-async def auth_ac(create_user, ac) -> AsyncClient:
+async def auth_ac(create_user, ac) -> AsyncGenerator:
     data = {"email": "qwerty@mail.com", "password": "strongpassword"}
     response = await ac.post("/auth/login", json=data)
     assert response.cookies.get("access_token")

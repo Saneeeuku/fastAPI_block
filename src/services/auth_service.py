@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime, timezone
 
-from passlib.context import CryptContext
+from bcrypt import hashpw, checkpw, gensalt
 import jwt
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 
@@ -16,8 +16,6 @@ from src.services.base_service import BaseService
 
 
 class AuthService(BaseService):
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
     @staticmethod
     def create_access_token(data: dict):
         to_encode = data.copy()
@@ -31,10 +29,14 @@ class AuthService(BaseService):
         return encoded_jwt
 
     def hash_password(self, password: str):
-        return self.pwd_context.hash(password)
+        bytes_pw = password.encode()
+        return hashpw(bytes_pw, gensalt()).decode()
 
-    def verify_password(self, plain_password: str, hashed_password: str):
-        return self.pwd_context.verify(plain_password, hashed_password)
+    @staticmethod
+    def verify_password(plain_password: str, hashed_password: str):
+        bytes_pw = plain_password.encode()
+        bytes_hpw = hashed_password.encode()
+        return checkpw(bytes_pw, bytes_hpw)
 
     @staticmethod
     def decode_token(token: str) -> dict | None:
