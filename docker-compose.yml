@@ -1,5 +1,6 @@
 services:
-  booking_backend:
+  backend:
+    container_name: booking_backend
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,7 +14,8 @@ services:
       - shared_images:/app/src/static/images
     command: sh -c "alembic upgrade head && python -m src.main"
 
-  booking_cache_redis:
+  cache:
+    container_name: booking_cache_redis
     image: redis:8.2.2
     # ports:
     #   - "7379:6379"
@@ -29,7 +31,8 @@ services:
     volumes:
       - redis_data:/data
 
-  booking_celery_worker:
+  celery_worker:
+    container_name: booking_celery_worker
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,13 +42,14 @@ services:
       - ".env"
     user: "1000:1000"
     depends_on:
-      - booking_backend
-      - booking_cache_redis
+      - backend
+      - cache
     volumes:
       - shared_images:/app/src/static/images
     command: celery --app=src.tasks.celery_base:celery_app worker --loglevel=INFO
 
-  booking_celery_beat:
+  celery_beat:
+    container_name: booking_celery_beat
     build:
       context: .
       dockerfile: Dockerfile
@@ -55,9 +59,9 @@ services:
       - ".env"
     user: "1000:1000"
     depends_on:
-      - booking_backend
-      - booking_celery_worker
-      - booking_cache_redis
+      - backend
+      - celery_worker
+      - cache
     command: celery --app=src.tasks.celery_base:celery_app beat -l INFO
 
 volumes:
