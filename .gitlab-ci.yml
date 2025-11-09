@@ -5,8 +5,12 @@ stages:
 
 build-job:
   stage: build
+  before_script:
+    - cp ${ENV} .env
+    - cp ${ENV_TEST} .env_test
   script:
     - echo "Compiling the code..."
+    - docker build -t booking_api_image .
     - echo "Compile complete."
 
 # unit-test-job:
@@ -25,7 +29,8 @@ build-job:
 
 deploy-job:
   stage: deploy
-  environment: production
   script:
     - echo "Deploying application..."
+    - docker compose up --file docker-compose-ci.yml -d
+    - docker exec booking_nginx nginx -s reload
     - echo "Application successfully deployed."
