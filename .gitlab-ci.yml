@@ -31,6 +31,6 @@ deploy-job:
   stage: deploy
   script:
     - echo "Deploying application..."
-    - docker compose up --file docker-compose-ci.yml -d
+    - docker compose up -f docker-compose-ci.yml -d
     - docker exec booking_nginx nginx -s reload
     - echo "Application successfully deployed."
