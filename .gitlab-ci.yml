@@ -10,7 +10,7 @@ build-job:
     - cp ${ENV_TEST} .env_test
   script:
     - echo "Compiling the code..."
-    - docker build -t booking_api_image .
+    - docker build -t booking_api .
     - echo "Compile complete."
 
 # unit-test-job:
