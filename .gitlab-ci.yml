@@ -41,6 +41,10 @@ Tests job:
   
 Deploy job:
   stage: deploy
+  before_script:
+    - docker compose -f docker-compose-ci.yml down
   script:
     - docker compose -f docker-compose-ci.yml up -d
     - docker exec booking_nginx nginx -s reload
+  after_script:
+    - docker image prune -f
