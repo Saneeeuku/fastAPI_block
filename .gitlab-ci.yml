@@ -1,36 +1,40 @@
 stages:
   - build
-#  - test
+  - lint_format
+  - migrations
+  - test
   - deploy
 
-build-job:
+Build job:
   stage: build
   before_script:
     - cp ${ENV} .env
     - cp ${ENV_TEST} .env_test
   script:
-    - echo "Compiling the code..."
     - docker build -t booking_api .
-    - echo "Compile complete."
 
-# unit-test-job:
-#   stage: test
-#   script:
-#     - echo "Running unit tests... This will take about 60 seconds."
-#     - sleep 60
-#     - echo "Code coverage is 90%"
+Linter job:
+  stage: lint_format
+  script:
+    - docker run --rm --network my_network booking_api ruff check
 
-# lint-test-job:
-#   stage: test
-#   script:
-#     - echo "Linting code... This will take about 10 seconds."
-#     - sleep 10
-#     - echo "No lint issues found."
-
-deploy-job:
+Format job:
+  stage: lint_format
+  script:
+    - docker run --rm --network my_network booking_api ruff format --check
+  
+Migrations job:
+  stage: migrations
+  script:
+    - docker run --rm --network my_network booking_api alembic upgrade head
+  
+Tests job:
+  stage: test
+  script:
+    - docker run --rm --network my_network booking_api pytest
+  
+Deploy job:
   stage: deploy
   script:
-    - echo "Deploying application..."
     - docker compose -f docker-compose-ci.yml up -d
     - docker exec booking_nginx nginx -s reload
-    - echo "Application successfully deployed."

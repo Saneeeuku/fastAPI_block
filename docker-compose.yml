@@ -12,7 +12,7 @@ services:
       - ".env"
     volumes:
       - shared_images:/app/src/static/images
-    command: sh -c "alembic upgrade head && python -m src.main"
+    command: sh -c "python -m src.main"
 
   cache:
     container_name: booking_cache_redis
