@@ -1,5 +1,9 @@
+from datetime import timedelta
+
 import pytest
 from pytest import mark
+
+from src.schemas.bookings_schemas import _convert_str_to_date
 
 
 @pytest.fixture(scope="module")
@@ -11,13 +15,13 @@ async def clear_bookings_db(db):
 @mark.parametrize(
     "room_id, date_from, date_to, status_code",
     [
-        (1, "01-08-2024", "10-08-2024", 200),
-        (1, "01-08-2024", "10-08-2024", 200),
-        (1, "01-08-2024", "10-08-2024", 200),
-        (1, "01-08-2024", "10-08-2024", 200),
-        (1, "01-08-2024", "10-08-2024", 200),
-        (1, "01-08-2024", "10-08-2024", 404),
-        (1, "11-08-2024", "12-08-2024", 200),
+        (1, "01-08-2027", "10-08-2027", 200),
+        (1, "01-08-2027", "10-08-2027", 200),
+        (1, "01-08-2027", "10-08-2027", 200),
+        (1, "01-08-2027", "10-08-2027", 200),
+        (1, "01-08-2027", "10-08-2027", 200),
+        (1, "01-08-2027", "10-08-2027", 404),
+        (1, "11-08-2027", "12-08-2027", 200),
     ],
 )
 async def test_post_bookings(room_id, date_from, date_to, status_code, db, auth_ac):
@@ -34,9 +38,9 @@ async def test_post_bookings(room_id, date_from, date_to, status_code, db, auth_
 @mark.parametrize(
     "room_id, date_from, date_to, booking_count",
     [
-        (1, "01-08-2024", "10-08-2024", 1),
-        (1, "01-08-2024", "10-08-2024", 2),
-        (1, "01-08-2024", "10-08-2024", 3),
+        (1, "01-08-2027", "10-08-2027", 1),
+        (1, "01-08-2027", "10-08-2027", 2),
+        (1, "01-08-2027", "10-08-2027", 3),
     ],
 )
 async def test_post_and_get_users_bookings(

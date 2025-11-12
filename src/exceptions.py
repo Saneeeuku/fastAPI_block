@@ -39,4 +39,4 @@ class TokenException(LoginException):
 
 
 class DateViolationException(BaseBookingException):
-    detail = "Некорректные даты (выезд относительно заезда)"
+    detail = "Некорректные даты"

@@ -44,5 +44,6 @@ def get_free_rooms_ids(date_from: date, date_to: date, hotel_id: int | None = No
 
 
 def date_check(date_from: date, date_to: date):
-    if date_from >= date_to:
+    today = date.today()
+    if date_from < today or date_from >= date_to:
         raise DateViolationException

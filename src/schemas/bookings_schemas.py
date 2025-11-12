@@ -38,7 +38,7 @@ class Booking(BookingAdd):
     created_at: datetime
 
 
-def _convert_str_to_date(str_date: str):
+def _convert_str_to_date(str_date: str) -> date:
     if not str_date:
         raise ValidationError("Неверный формат даты")
     sep = "-"
