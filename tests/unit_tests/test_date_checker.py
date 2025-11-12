@@ -20,11 +20,10 @@ def test_date_checks(date_from, date_to, resp):
     date_from = _convert_str_to_date(date_from)
     date_to = _convert_str_to_date(date_to)
 
-    assert date_check(today, today + timedelta(days=1)) is None   
+    assert date_check(today, today + timedelta(days=1)) is None
 
     with pyraises(DateViolationException):
         date_check(today, today)
 
     with pyraises(DateViolationException):
         date_check(date_from, date_to)
-    

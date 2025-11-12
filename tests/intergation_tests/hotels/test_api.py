@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+
 async def test_get_hotels(ac):
     date_from = date.today()
     date_to = date_from + timedelta(days=1)

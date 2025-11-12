@@ -1,9 +1,5 @@
-from datetime import timedelta
-
 import pytest
 from pytest import mark
-
-from src.schemas.bookings_schemas import _convert_str_to_date
 
 
 @pytest.fixture(scope="module")
