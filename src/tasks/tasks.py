@@ -42,6 +42,7 @@ def send_emails_to_users_with_today_checkins():
     result = asyncio.run(get_today_checkins_bookings())
     return result
 
+
 async def send_postreg_emails(email: str):
     await router_rmq.broker.publish(
         message=email,
