@@ -7,6 +7,7 @@ from PIL import Image
 from src.database import async_new_session_null_pool
 from src.tasks.celery_base import celery_app
 from src.utils.db_manager import DBManager
+from src.init import router as router_rmq
 
 
 @celery_app.task
@@ -40,3 +41,10 @@ async def get_today_checkins_bookings():
 def send_emails_to_users_with_today_checkins():
     result = asyncio.run(get_today_checkins_bookings())
     return result
+
+async def send_postreg_emails(email: str):
+    await router_rmq.broker.publish(
+        message=email,
+        queue="email_sender",
+    )
+    return {"data": "Email sended"}

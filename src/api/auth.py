@@ -4,6 +4,7 @@ from src.api.dependencies import UserIdDep, DBDep
 from src.exceptions import LoginException, UserConflictException
 from src.schemas.users_schemas import UserRequestAdd, UserRequestLogin
 from src.services.auth_service import AuthService
+from src.tasks.tasks import send_postreg_emails
 
 router = APIRouter(prefix="/auth", tags=["Аутентификация и авторизация"])
 
@@ -28,6 +29,7 @@ async def register_user(
         await AuthService(db).register_user(user_data)
     except UserConflictException as e:
         raise HTTPException(status_code=409, detail=e.detail)
+    await send_postreg_emails(email=user_data.email)
     return {"status": "OK"}
 
 
