@@ -33,6 +33,14 @@ async def db(check_test_mode) -> AsyncGenerator:
         yield db
 
 
+@pytest.fixture(scope="session")
+async def rabbit(check_test_mod, db) -> AsyncGenerator:
+    data = {"email": "qwerty@mail.com", "password": "strongpassword"}
+    response = await ac.post("/auth/login", json=data)
+    assert response.cookies.get("access_token")
+    yield ac
+
+
 @pytest.fixture(scope="session", autouse=True)
 async def setup_db(check_test_mode, db) -> None:
     async with engine_null_pool.begin() as conn:

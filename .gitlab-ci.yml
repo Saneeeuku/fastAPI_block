@@ -11,6 +11,7 @@ Build job:
   before_script:
     - cp ${ENV} .env
     - cp ${ENV_TEST} .env_test
+    - docker image prune -f
   script:
     - docker build -t booking_api .
 
@@ -29,10 +30,10 @@ Format job:
 #   script:
 #     - docker run --rm --network my_network booking_api ruff format --check
   
-Migrations job:
-  stage: migrations
-  script:
-    - docker run --rm --network my_network booking_api alembic upgrade head
+# Migrations job:
+#   stage: migrations
+#   script:
+#     - docker run --rm --network my_network booking_api alembic upgrade head
   
 Tests job:
   stage: test
