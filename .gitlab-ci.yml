@@ -11,6 +11,7 @@ Build job:
   before_script:
     - cp ${ENV} .env
     - cp ${ENV_TEST} .env_test
+    - docker image prune -f
   script:
     - docker build -t booking_api .
 

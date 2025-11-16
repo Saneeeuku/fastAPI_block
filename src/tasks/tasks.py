@@ -1,12 +1,15 @@
 import asyncio
 import logging
 import os
+import json
 
 from PIL import Image
+from pydantic import EmailStr
 
 from src.database import async_new_session_null_pool
 from src.tasks.celery_base import celery_app
 from src.utils.db_manager import DBManager
+from src.init import router as router_rmq
 
 
 @celery_app.task
@@ -40,3 +43,16 @@ async def get_today_checkins_bookings():
 def send_emails_to_users_with_today_checkins():
     result = asyncio.run(get_today_checkins_bookings())
     return result
+
+
+async def send_postreg_emails(email: EmailStr, nickname: str):
+    data = {
+        "email": email,
+        "subject": "Registration",
+        "msg": f"Hello, {nickname}, you have been successfully registered!",
+    }
+    await router_rmq.broker.publish(
+        message=json.dumps(data),
+        queue="email_sender",
+    )
+    return {"data": "Email sended"}
