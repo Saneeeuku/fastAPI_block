@@ -6,4 +6,4 @@ from src.config import settings as s
 
 redis_manager = RedisManager(host=s.REDIS_HOST, port=s.REDIS_PORT)
 
-router = RabbitRouter(url="amqp://guest:guest@localhost:5672/")
+router = RabbitRouter(url=s.RABBITMQ_URL)

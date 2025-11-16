@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # ports:
-    #   - "8000:8000"
     networks:
       - my_network
     env_file:
@@ -17,8 +15,6 @@ services:
   cache:
     container_name: booking_cache_redis
     image: redis:8.2.2
-    # ports:
-    #   - "7379:6379"
     networks:
       - my_network
     env_file:

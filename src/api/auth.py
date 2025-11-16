@@ -29,7 +29,7 @@ async def register_user(
         await AuthService(db).register_user(user_data)
     except UserConflictException as e:
         raise HTTPException(status_code=409, detail=e.detail)
-    await send_postreg_emails(email=user_data.email)
+    await send_postreg_emails(email=user_data.email, nickname=user_data.nickname)
     return {"status": "OK"}
 
 
